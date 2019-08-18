@@ -27,7 +27,6 @@ dependencies {
     implementation(AndroidDeps.coreKtx)
 
     implementation(AndroidDeps.retrofit)
-    implementation(AndroidDeps.rxAndroid)
     implementation(AndroidDeps.rxKotlin)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.gson)
@@ -38,7 +37,4 @@ dependencies {
     testImplementation(JvmTestDeps.mockitoKotlin) {
         transitive = false
     }
-
-    androidTestImplementation(AndroidTestDeps.androidJunit)
-    androidTestImplementation(AndroidTestDeps.espressoCore)
 }

@@ -1,6 +1,7 @@
 apply plugin : "com.android.application"
 apply plugin : "kotlin-android"
 apply plugin : "kotlin-android-extensions"
+apply plugin: "kotlin-kapt"
 
 android {
     compileSdkVersion 28
@@ -21,6 +22,23 @@ android {
 }
 
 dependencies {
+    implementation(project(":ui"))
+    implementation(project(":data"))
+    implementation(project(":domain"))
+    implementation(project(":presentation"))
+
+    implementation(JvmDeps.dagger)
+    implementation(AndroidDeps.daggerAndroid)
+    kapt(JvmDeps.daggerCompiler)
+    kapt(AndroidDeps.daggerAndroidProcessor)
+
+    implementation(AndroidDeps.retrofit)
+    implementation(AndroidDeps.retrofitRxJavaAdapter)
+    implementation(AndroidDeps.retrofitGsonConverter)
+    implementation(AndroidDeps.retrofitLogger)
+    implementation(AndroidDeps.rxAndroid)
+    implementation(AndroidDeps.rxKotlin)
+
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
     implementation(AndroidDeps.coreKtx)

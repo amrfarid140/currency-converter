@@ -3,7 +3,8 @@ package me.amryousef.converter.di
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
-import me.amryousef.converter.data.CurrencyRatesService
+import me.amryousef.converter.data.CurrencyRepositoryImpl
+import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.local.LocalWritableCurrencyRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
 import me.amryousef.converter.domain.CurrencyRepository
@@ -44,4 +45,10 @@ class DataModule {
     fun provideRemoteRepository(
         remote: RemoteCurrencyRepository
     ): CurrencyRepository = remote
+
+    @Singleton
+    @Provides
+    fun provideRepositoryImpl(
+        repository: CurrencyRepositoryImpl
+    ): CurrencyRepository = repository
 }

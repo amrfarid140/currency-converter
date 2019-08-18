@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Single
+import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepositoryMapper
 import org.junit.Test

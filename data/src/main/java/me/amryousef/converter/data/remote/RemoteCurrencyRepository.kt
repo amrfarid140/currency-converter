@@ -1,7 +1,6 @@
 package me.amryousef.converter.data.remote
 
 import io.reactivex.Observable
-import me.amryousef.converter.data.CurrencyRatesService
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
 import javax.inject.Inject

@@ -1,0 +1,7 @@
+apply plugin: "kotlin"
+
+dependencies {
+    implementation(JvmDeps.rxJava)
+    implementation(JvmDeps.kotlinStdlib)
+    testImplementation(JvmTestDeps.junit)
+}

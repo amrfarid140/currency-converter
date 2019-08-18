@@ -1,0 +1,30 @@
+apply plugin : "com.android.application"
+apply plugin : "kotlin-android"
+apply plugin : "kotlin-android-extensions"
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "me.amryousef.converter"
+        minSdkVersion 23
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    implementation(JvmDeps.kotlinStdlib)
+    implementation(AndroidDeps.appCompat)
+    implementation(AndroidDeps.coreKtx)
+    testImplementation(JvmTestDeps.junit)
+    androidTestImplementation(AndroidTestDeps.androidJunit)
+    androidTestImplementation(AndroidTestDeps.espressoCore)
+}

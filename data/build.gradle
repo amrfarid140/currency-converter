@@ -28,11 +28,16 @@ dependencies {
 
     implementation(AndroidDeps.retrofit)
     implementation(AndroidDeps.rxAndroid)
+    implementation(AndroidDeps.rxKotlin)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.gson)
 
     testImplementation(JvmTestDeps.junit)
     testImplementation(JvmTestDeps.kotlinTest)
+    testImplementation(JvmTestDeps.mockitoInline)
+    testImplementation(JvmTestDeps.mockitoKotlin) {
+        transitive = false
+    }
 
     androidTestImplementation(AndroidTestDeps.androidJunit)
     androidTestImplementation(AndroidTestDeps.espressoCore)

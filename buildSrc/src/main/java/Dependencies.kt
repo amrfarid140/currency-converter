@@ -16,6 +16,7 @@ object Versions {
 
     const val daggerAndroid = "2.24"
     const val gson = "2.8.5"
+    const val mockitoKotlin = "2.1.0"
 }
 
 object BuildDeps {
@@ -53,4 +54,6 @@ object JvmDeps{
 object JvmTestDeps {
     const val junit = "junit:junit:${Versions.junit}"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
+    const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
+    const val mockitoInline = "org.mockito:mockito-inline:3.0.0"
 }

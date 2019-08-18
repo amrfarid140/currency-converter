@@ -15,7 +15,11 @@ class CurrencyRepositoryImpl @Inject constructor(
     override fun observeCurrencyRates(): Observable<List<CurrencyRate>> =
         remoteRepository
             .observeCurrencyRates()
-            .flatMap { localRepository.addCurrencyRates(it).andThen(Observable.just(it)) }
+            .flatMap { data ->
+                localRepository.addCurrencyRates(data)
+                    .toObservable<Any>()
+                    .flatMap { Observable.just(data) }
+            }
             .doOnError {
                 localRepository.observeCurrencyRates()
             }

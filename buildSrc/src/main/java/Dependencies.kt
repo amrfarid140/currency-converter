@@ -4,7 +4,7 @@ object Versions {
     const val retrofit = "2.6.1"
     const val retrofitLogger = "4.1.0"
 
-    const val kotlin = "1.3.31"
+    const val kotlin = "1.3.41"
 
     const val junit = "4.12"
     const val androidJunit = "1.1.0"
@@ -20,7 +20,7 @@ object Versions {
 }
 
 object BuildDeps {
-    const val AGP = "com.android.tools.build:gradle:3.5.0-beta05"
+    const val AGP = "com.android.tools.build:gradle:3.5.0-rc03"
     const val KGP = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
 }
 

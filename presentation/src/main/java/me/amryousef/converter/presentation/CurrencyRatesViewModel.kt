@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class CurrencyRatesViewModel @Inject constructor(
     private val fetchDataUseCase: FetchDataUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableLiveData<ViewState>()
     val state: LiveData<ViewState> = _state
@@ -22,7 +22,7 @@ class CurrencyRatesViewModel @Inject constructor(
 
     private fun loadData() {
         _state.value = ViewState.Loading
-        fetchDataUseCase.execute { result -> _state.value = result.reduce() }
+        fetchDataUseCase.execute { result -> result.reduce() }
     }
 
     private fun UseCaseResult<List<CurrencyRate>>.reduce() =
@@ -31,9 +31,15 @@ class CurrencyRatesViewModel @Inject constructor(
                 val items = data.toStateItem()
                 originalRates.clear()
                 originalRates.addAll(items)
-                ViewState.Ready(items)
+                (_state.value as? ViewState.Ready)?.let { currentState ->
+                    val focusedItem = currentState.items.first()
+                    onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
+                } ?: run {
+                    _state.value = ViewState.Ready(items)
+                }
             }
-            is UseCaseResult.Error -> ViewState.Error
+
+            is UseCaseResult.Error -> _state.value = ViewState.Error
         }
 
     private fun List<CurrencyRate>.toStateItem() = map { rate ->
@@ -60,20 +66,23 @@ class CurrencyRatesViewModel @Inject constructor(
 
     fun onRowValueChanged(currencyCode: String, newValue: Double) =
         (state.value as? ViewState.Ready)?.let { currentState ->
+            val currentStateItems = currentState.items
             val focusedItem = currentState.items.find { it.currencyCode == currencyCode }
             if (focusedItem?.isBase == true) {
-                updateRates(newValue)
+                updateRates(currentStateItems, newValue)
             } else {
                 val originalRate = originalRates.find { it.currencyCode == currencyCode }
                 val newBaseValue =
                     originalRate?.let { safeRate -> newValue / safeRate.value } ?: 0.0
-                updateRates(newBaseValue)
+                updateRates(currentStateItems, newBaseValue)
             }
         }
 
-    private fun updateRates(newValue: Double) {
+    private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) {
         _state.value = ViewState.Ready(
-            originalRates.map { originalRate ->
+            currentStateItems.map { currentValue ->
+                val originalRate = originalRates.find { it.currencyCode == currentValue.currencyCode }
+                    ?: currentValue
                 if (originalRate.isBase) {
                     originalRate.copy(value = newValue)
                 } else {

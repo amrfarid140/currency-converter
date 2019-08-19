@@ -103,6 +103,24 @@ class CurrencyRatesViewModelTest {
     }
 
     @Test
+    fun givenFocusedRowChanged_WhenUseCaseDataIsUpdated_ThenOrderIsKeptTheSame() {
+        val viewModel = viewModel()
+        givenUseCaseReturnsData()
+
+        viewModel.onRowFocused("USD")
+
+        givenUseCaseReturnsData()
+
+        val state = viewModel.state.value
+        assertNotNull(state)
+        assertTrue(state is ViewState.Ready)
+        assertEquals(
+            expected = "USD",
+            actual = state.items.first().currencyCode
+        )
+    }
+
+    @Test
     fun givenOtherRowValueChanged_WhenOnRowValueChanged_ThenAllValuesChangedCorrectly() {
         val viewModel = viewModel()
         givenUseCaseReturnsData()
@@ -121,7 +139,7 @@ class CurrencyRatesViewModelTest {
             actual = state.items.find { it.currencyCode == "EUR" }?.value
         )
     }
-    
+
     private fun givenUseCaseReturnsData() {
         callbackCaptor.lastValue.invoke(
             UseCaseResult.Success(

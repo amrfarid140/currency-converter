@@ -55,6 +55,9 @@ class CurrencyActivity : AppCompatActivity() {
             list.isVisible = true
             errorMessage.isVisible = false
             retryButton.isVisible = false
+            state.items.firstOrNull()?.currencyCode?.let {
+                valueTextWatcher.currencyCode = it
+            }
 
             listAdapter.submitList(
                 state.items.mapIndexed { index, item ->
@@ -89,7 +92,7 @@ class CurrencyActivity : AppCompatActivity() {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             currencyCode?.let { currency ->
-                s.toString().toDoubleOrNull()?.let { value ->
+                s?.toString()?.let { value ->
                     viewModel.onRowValueChanged(currency, value)
                 }
             }

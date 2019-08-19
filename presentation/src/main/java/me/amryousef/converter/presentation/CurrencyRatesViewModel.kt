@@ -43,7 +43,7 @@ class CurrencyRatesViewModel @Inject constructor(
         }
 
     private fun List<CurrencyRate>.toStateItem() = map { rate ->
-        ViewStateItem(rate.currency.currencyCode, rate.rate, rate.isBase)
+        ViewStateItem(rate.currency.currencyCode, rate.rate.formatValue(), rate.isBase)
     }
 
     fun onRetryClicked() {
@@ -64,33 +64,44 @@ class CurrencyRatesViewModel @Inject constructor(
             )
         } ?: Unit
 
-    fun onRowValueChanged(currencyCode: String, newValue: Double) =
-        (state.value as? ViewState.Ready)?.let { currentState ->
-            val currentStateItems = currentState.items
-            val focusedItem = currentState.items.find { it.currencyCode == currencyCode }
-            if (focusedItem?.isBase == true) {
-                updateRates(currentStateItems, newValue)
-            } else {
-                val originalRate = originalRates.find { it.currencyCode == currencyCode }
-                val newBaseValue =
-                    originalRate?.let { safeRate -> newValue / safeRate.value } ?: 0.0
-                updateRates(currentStateItems, newBaseValue)
+    fun onRowValueChanged(currencyCode: String, newValueText: String) =
+        newValueText.toDoubleOrNull()?.let { newValue ->
+            (state.value as? ViewState.Ready)?.let { currentState ->
+                val currentStateItems = currentState.items
+                val focusedItem = currentState.items.find { it.currencyCode == currencyCode }
+                val newStateItems = if (focusedItem?.isBase == true) {
+                    updateRates(currentStateItems.subList(1, currentStateItems.size), newValue)
+                } else {
+                    val originalRate = originalRates.find { it.currencyCode == currencyCode }
+                    val newBaseValue =
+                        originalRate?.let { safeRate -> safeRate.value.toDoubleOrNull()?.let { newValue / it } }
+                            ?: 0.0
+                    updateRates(currentStateItems.subList(1, currentStateItems.size), newBaseValue)
+                }
+                _state.value = ViewState.Ready(
+                    mutableListOf<ViewStateItem>().apply {
+                        focusedItem?.let { item -> add(item.copy(value = newValueText)) }
+                        addAll(newStateItems)
+                    }
+                )
             }
         }
 
-    private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) {
-        _state.value = ViewState.Ready(
-            currentStateItems.map { currentValue ->
-                val originalRate = originalRates.find { it.currencyCode == currentValue.currencyCode }
-                    ?: currentValue
-                if (originalRate.isBase) {
-                    originalRate.copy(value = newValue)
-                } else {
-                    originalRate.copy(value = newValue * originalRate.value)
-                }
+    private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) =
+        currentStateItems.map { currentValue ->
+            val originalRate = originalRates.find { it.currencyCode == currentValue.currencyCode }
+                ?: currentValue
+            if (originalRate.isBase) {
+                originalRate.copy(value = newValue.formatValue())
+            } else {
+                originalRate.value.toDoubleOrNull()?.let {
+                    originalRate.copy(value = (newValue * it).formatValue())
+                } ?: originalRate
             }
-        )
-    }
+        }
+
+    private fun Double.formatValue() =
+        String.format("%.2f", this)
 
     override fun onCleared() {
         fetchDataUseCase.cancel()

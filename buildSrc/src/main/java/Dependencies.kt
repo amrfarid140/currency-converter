@@ -1,6 +1,9 @@
 object Versions {
     const val appCompat = "1.1.0-rc01"
+    const val lifecycleVersion = "2.0.0"
     const val coreKtx = "1.1.0-rc03"
+    const val constraintLayout = "2.0.0-beta2"
+    const val materialComponents = "1.0.0"
     const val retrofit = "2.6.1"
     const val retrofitLogger = "4.1.0"
 
@@ -35,11 +38,17 @@ object AndroidDeps {
     const val rxKotlin = "io.reactivex.rxjava2:rxkotlin:${Versions.rxKotlin}"
     const val daggerAndroid = "com.google.dagger:dagger-android:${Versions.daggerAndroid}"
     const val daggerAndroidProcessor = "com.google.dagger:dagger-android-processor:${Versions.daggerAndroid}"
+    const val viewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycleVersion}"
+    const val liveData = "androidx.lifecycle:lifecycle-livedata:${Versions.lifecycleVersion}"
+    const val lifecycleCommon = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycleVersion}"
+    const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    const val materialComponents = "com.google.android.material:material:1.0.0"
 }
 
 object AndroidTestDeps {
     const val androidJunit = "androidx.test.ext:junit:${Versions.androidJunit}"
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
+    const val liveDataHelper = "androidx.arch.core:core-testing:${Versions.lifecycleVersion}"
 }
 
 object JvmDeps{

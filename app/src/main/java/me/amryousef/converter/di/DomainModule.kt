@@ -14,7 +14,4 @@ abstract class DomainModule {
     @Singleton
     @Binds
     abstract fun bindSchedulerProvider(androidSchedulerProvider: AndroidSchedulerProvider): SchedulerProvider
-
-    @Binds
-    abstract fun bindFetchDataUseCase(useCase: FetchDataUseCase): FetchDataUseCase
 }

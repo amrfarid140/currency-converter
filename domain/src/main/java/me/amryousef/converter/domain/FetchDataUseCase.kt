@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class FetchDataUseCase @Inject constructor(
-    private val currencyRepository: WritableCurrencyRepository,
+    private val currencyRepository: CurrencyRepository,
     private val schedulerProvider: SchedulerProvider
 ) : UseCase<Nothing, List<CurrencyRate>> {
     private val disposable = CompositeDisposable()
@@ -15,15 +15,16 @@ class FetchDataUseCase @Inject constructor(
         disposable.add(
             currencyRepository
                 .observeCurrencyRates()
-                .flatMap { data ->
-                    currencyRepository.addCurrencyRates(data).andThen(Observable.just(data))
-                }
                 .repeatWhen { complete -> complete.delay(1, TimeUnit.SECONDS) }
                 .observeOn(schedulerProvider.main())
                 .subscribeOn(schedulerProvider.io())
                 .subscribe(
-                    { data -> onResult(UseCaseResult.Success(data)) },
-                    { error -> onResult(UseCaseResult.Error(error)) }
+                    { data ->
+                        onResult(UseCaseResult.Success(data))
+                    },
+                    { error ->
+                        onResult(UseCaseResult.Error(error))
+                    }
                 )
         )
     }

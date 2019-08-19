@@ -8,6 +8,8 @@ import java.lang.IllegalStateException
 import java.util.Currency
 import kotlin.test.assertEquals
 
+//TODO(Test that base is added top of the list)
+
 class RemoteCurrencyRepositoryMapperTest {
 
     private val mapper = RemoteCurrencyRepositoryMapper(Gson())

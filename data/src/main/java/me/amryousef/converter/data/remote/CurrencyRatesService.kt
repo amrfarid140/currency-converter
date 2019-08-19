@@ -5,5 +5,5 @@ import retrofit2.http.GET
 
 interface CurrencyRatesService {
     @GET("latest?base=EUR")
-    fun getLatestRates(): Single<Map<String, String>>
+    fun getLatestRates(): Single<Map<String, Any>>
 }

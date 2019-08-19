@@ -9,18 +9,26 @@ import javax.inject.Inject
 
 class RemoteCurrencyRepositoryMapper @Inject constructor(private val gson: Gson) {
     @Throws(IllegalStateException::class, JsonSyntaxException::class)
-    fun map(apiData: Map<String, String>) =
+    fun map(apiData: Map<String, Any>) =
         apiData
             .entries
             .find { entry -> entry.key == "rates" }
             ?.let { entry ->
-                val mapTypeToken = object : TypeToken<Map<String, Double>>() {}.type
-                val rates = gson.fromJson<Map<String, Double>>(entry.value, mapTypeToken)
+                val rates = entry.value as Map<String, Double>
                 rates.map { rateEntry ->
                     CurrencyRate(
                         currency = Currency.getInstance(rateEntry.key),
                         rate = rateEntry.value
                     )
-                }
+                }.toMutableList().apply {
+                    add(
+                        0,
+                        CurrencyRate(
+                            Currency.getInstance(apiData["base"] as String),
+                            1.0
+                        )
+                    )
+
+                }.toList()
             } ?: throw IllegalStateException()
 }

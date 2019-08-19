@@ -17,13 +17,27 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
+    implementation project(":domain")
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
-    implementation(AndroidDeps.coreKtx)
+    implementation(AndroidDeps.viewModel)
+    implementation(AndroidDeps.liveData)
+    implementation(AndroidDeps.lifecycleCommon)
+    implementation(JvmDeps.javaxInject)
+
+    testImplementation(AndroidTestDeps.liveDataHelper)
     testImplementation(JvmTestDeps.junit)
+
     androidTestImplementation(AndroidTestDeps.androidJunit)
     androidTestImplementation(AndroidTestDeps.espressoCore)
 }

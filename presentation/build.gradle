@@ -1,6 +1,6 @@
-apply plugin : "com.android.library"
-apply plugin : "kotlin-android"
-apply plugin : "kotlin-android-extensions"
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
 
 android {
     compileSdkVersion 28
@@ -37,6 +37,11 @@ dependencies {
 
     testImplementation(AndroidTestDeps.liveDataHelper)
     testImplementation(JvmTestDeps.junit)
+    testImplementation(JvmTestDeps.mockitoKotlin) {
+        transitive = false
+    }
+    testImplementation(JvmTestDeps.mockitoInline)
+    testImplementation(JvmTestDeps.kotlinTest)
 
     androidTestImplementation(AndroidTestDeps.androidJunit)
     androidTestImplementation(AndroidTestDeps.espressoCore)

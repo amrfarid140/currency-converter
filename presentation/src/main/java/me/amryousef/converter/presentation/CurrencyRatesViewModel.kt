@@ -40,7 +40,10 @@ class CurrencyRatesViewModel @Inject constructor(
         ViewStateItem(rate.currency.currencyCode, rate.rate, rate.isBase)
     }
 
-    fun onRetryClicked() = loadData()
+    fun onRetryClicked() {
+        fetchDataUseCase.cancel()
+        loadData()
+    }
 
     fun onRowFocused(currencyCode: String) =
         (_state.value as? ViewState.Ready)?.let { currentState ->

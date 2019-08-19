@@ -5,4 +5,9 @@ dependencies {
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.kotlinStdlib)
     testImplementation(JvmTestDeps.junit)
+    testImplementation(JvmTestDeps.kotlinTest)
+    testImplementation(JvmTestDeps.mockitoKotlin) {
+        transitive = false
+    }
+    testImplementation(JvmTestDeps.mockitoInline)
 }

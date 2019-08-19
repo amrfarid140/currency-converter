@@ -13,7 +13,7 @@
         android:id="@+id/currency_row_currency_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+
         android:textAppearance="?attr/textAppearanceSubtitle1"
         app:layout_constraintBottom_toTopOf="@id/currency_row_currency_name"
         app:layout_constraintEnd_toStartOf="@id/currency_row_currency_value_input_layout"

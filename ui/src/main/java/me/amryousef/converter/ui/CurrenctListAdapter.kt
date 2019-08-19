@@ -5,29 +5,20 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import me.amryousef.converter.presentation.ViewStateItem
 
-class CurrencyListAdapter : ListAdapter<ViewStateItem, CurrencyRowViewHolder>(DIFF_CALLBACK) {
+class CurrencyListAdapter : ListAdapter<CurrencyRowViewData, CurrencyRowViewHolder>(DiffUtilCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         CurrencyRowViewHolder(parent)
-
 
     override fun onBindViewHolder(holder: CurrencyRowViewHolder, position: Int) =
         holder.bind(getItem(position))
 
+    private class DiffUtilCallback : DiffUtil.ItemCallback<CurrencyRowViewData>() {
+        override fun areItemsTheSame(oldItem: CurrencyRowViewData, newItem: CurrencyRowViewData): Boolean {
+            return oldItem.currencyCode == newItem.currencyCode
+        }
 
-    private companion object {
-        @JvmStatic
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ViewStateItem>() {
-            override fun areItemsTheSame(oldItem: ViewStateItem, newItem: ViewStateItem): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areContentsTheSame(
-                oldItem: ViewStateItem,
-                newItem: ViewStateItem
-            ): Boolean {
-                return oldItem == newItem
-            }
-
+        override fun areContentsTheSame(oldItem: CurrencyRowViewData, newItem: CurrencyRowViewData): Boolean {
+            return oldItem == newItem
         }
     }
 }

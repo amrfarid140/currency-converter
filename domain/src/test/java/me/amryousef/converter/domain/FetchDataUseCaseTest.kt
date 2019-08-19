@@ -15,7 +15,7 @@ private typealias Callback<T> = (UseCaseResult<T>) -> Unit
 
 class FetchDataUseCaseTest {
     private val testScheduler = TestScheduler()
-    private val mockCurrencyRepository = mock<WritableCurrencyRepository>()
+    private val mockCurrencyRepository = mock<CurrencyRepository>()
     private val mockSchedulerProvider = mock<SchedulerProvider> {
         on { io() } doReturn testScheduler
         on { main() } doReturn Schedulers.trampoline()
@@ -31,18 +31,6 @@ class FetchDataUseCaseTest {
         whenever(mockCallback.invoke(callbackResultCaptor.capture())).thenReturn(Unit)
     }
 
-    @Test
-    fun givenCurrencyRepositoryHasNewRates_WhenExecute_ThenNewRatesAreStored() {
-        val mockData = listOf(mock<CurrencyRate>())
-        given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
-            Observable.just(mockData)
-        )
-
-        useCase.execute(onResult = mockCallback)
-        testScheduler.triggerActions()
-
-        verify(mockCurrencyRepository).addCurrencyRates(mockData)
-    }
 
     @Test
     fun givenCurrencyRepositoryOperationsSuccess_WhenExecute_ThenResultIsSuccess() {
@@ -50,7 +38,6 @@ class FetchDataUseCaseTest {
         given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
             Observable.just(mockData)
         )
-        given(mockCurrencyRepository.addCurrencyRates(any())).willReturn(Completable.complete())
 
         useCase.execute(onResult = mockCallback)
         testScheduler.triggerActions()
@@ -71,33 +58,17 @@ class FetchDataUseCaseTest {
     }
 
     @Test
-    fun givenCurrencyRepositoryFailsToAddData_WhenExecute_ThenResultIsError() {
-        val mockData = listOf(mock<CurrencyRate>())
-        given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
-            Observable.just(mockData)
-        )
-        given(mockCurrencyRepository.addCurrencyRates(any())).willReturn(Completable.error(Throwable()))
-
-        useCase.execute(onResult = mockCallback)
-        testScheduler.triggerActions()
-
-        assertTrue(callbackResultCaptor.lastValue is UseCaseResult.Error)
-    }
-
-    @Test
     @Ignore
     fun givenObservableCompletes_WhenExecute_ThenOperationsAreRepeatedAfterOneSecond() {
         val mockData = listOf(mock<CurrencyRate>())
         given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
             Observable.just(mockData)
         )
-        given(mockCurrencyRepository.addCurrencyRates(any())).willReturn(Completable.complete())
 
 
         useCase.execute(onResult = mockCallback)
         testScheduler.advanceTimeBy(10, TimeUnit.SECONDS)
 
-        verify(mockCurrencyRepository, times(10)).addCurrencyRates(mockData)
         verify(mockCurrencyRepository, times(10)).observeCurrencyRates()
 
     }

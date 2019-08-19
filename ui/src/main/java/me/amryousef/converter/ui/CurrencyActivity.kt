@@ -1,6 +1,8 @@
 package me.amryousef.converter.ui
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
@@ -34,21 +36,36 @@ class CurrencyActivity : AppCompatActivity() {
         viewModel.state.observe(this, Observer { handleState(it) })
     }
 
-    private fun handleState(state: ViewState) = when(state) {
+    private fun handleState(state: ViewState) = when (state) {
         is ViewState.Loading -> {
             progress.isVisible = true
             list.isVisible = false
             errorMessage.isVisible = false
             retryButton.isVisible = false
         }
+
         is ViewState.Ready -> {
             progress.isVisible = false
             list.isVisible = true
             errorMessage.isVisible = false
             retryButton.isVisible = false
 
-            listAdapter.submitList(state.items)
+            listAdapter.submitList(
+                state.items.map { item ->
+                    CurrencyRowViewData(
+                        currencyCode = item.currencyCode,
+                        value = String.format("%.2f", item.value),
+                        onEditTextFocused = {
+                            viewModel.onRowFocused(item.currencyCode)
+                        },
+                        textWatcher = ValueTextWatcher { newValue ->
+                            viewModel.onRowValueChanged(item.currencyCode, newValue)
+                        }
+                    )
+                }
+            )
         }
+
         is ViewState.Error -> {
             progress.isVisible = false
             list.isVisible = false
@@ -57,5 +74,15 @@ class CurrencyActivity : AppCompatActivity() {
         }
     }
 
+    private class ValueTextWatcher(private val onChanged: (Double) -> Unit) : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {
+        }
 
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            onChanged(s.toString().toDoubleOrNull() ?: 0.0)
+        }
+    }
 }

@@ -28,6 +28,8 @@ android {
 
 dependencies {
     implementation project(":presentation")
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
     implementation(AndroidDeps.constraintLayout)

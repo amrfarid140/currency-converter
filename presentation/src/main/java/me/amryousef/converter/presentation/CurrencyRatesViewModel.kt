@@ -21,7 +21,7 @@ class CurrencyRatesViewModel @Inject constructor(
     }
 
     private fun loadData() {
-        _state.value = ViewState.Error
+        _state.value = ViewState.Loading
         fetchDataUseCase.execute { result -> _state.value = result.reduce() }
     }
 

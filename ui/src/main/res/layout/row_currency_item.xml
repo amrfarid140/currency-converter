@@ -13,6 +13,8 @@
         android:id="@+id/currency_row_currency_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
         app:layout_constraintBottom_toTopOf="@id/currency_row_currency_name"
         app:layout_constraintEnd_toStartOf="@id/currency_row_currency_value_input_layout"
         app:layout_constraintHorizontal_bias="0"
@@ -33,16 +35,22 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/currency_row_currency_value_input_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="32dp"
+        android:gravity="end"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toEndOf="@id/currency_row_currency_name"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/currency_row_currency_value_input_field"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
+
             android:inputType="numberDecimal"
             tools:text="22.2" />
     </com.google.android.material.textfield.TextInputLayout>

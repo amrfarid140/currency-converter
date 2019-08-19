@@ -1,6 +1,5 @@
 package me.amryousef.converter.domain
 
-import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

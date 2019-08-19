@@ -8,8 +8,6 @@ import java.lang.IllegalStateException
 import java.util.Currency
 import kotlin.test.assertEquals
 
-//TODO(Test that base is added top of the list)
-
 class RemoteCurrencyRepositoryMapperTest {
 
     private val mapper = RemoteCurrencyRepositoryMapper(Gson())
@@ -19,24 +17,31 @@ class RemoteCurrencyRepositoryMapperTest {
         // Given
         val validApiResponse =
             mapOf(
-                "rates" to "{\"USD\":22.2}"
+                "rates" to mapOf("USD" to 22.2),
+                "base" to "EUR"
             )
-
         // When
         val result = mapper.map(validApiResponse)
 
         // Then
         assertEquals(
             expected = result.size,
-            actual = 1
+            actual = 2
         )
 
+        assertEquals(
+            expected = CurrencyRate(
+                currency = Currency.getInstance("EUR"),
+                rate = 1.0
+            ),
+            actual = result.first()
+        )
         assertEquals(
             expected = CurrencyRate(
                 currency = Currency.getInstance("USD"),
                 rate = 22.2
             ),
-            actual = result.first()
+            actual = result[1]
         )
     }
 

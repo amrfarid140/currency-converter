@@ -19,15 +19,19 @@ class CurrencyRowViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
         val currency = Currency.getInstance(item.currencyCode)
         currencyName.text = currency.displayName
         valueInputField.setOnTouchListener(null)
+        valueInputField.removeTextChangedListener(item.textWatcher)
+        valueInputField.post {
+            valueInputField.setSelection(valueInputField.text.toString().length)
+        }
         if (item.textWatcher.currencyCode != item.currencyCode) {
-            valueInputField.removeTextChangedListener(item.textWatcher)
-            valueInputField.text = Editable.Factory.getInstance().newEditable(item.value)
+            valueInputField.text = Editable.Factory.getInstance().newEditable(String.format("%.2f", item.value))
             valueInputField.setOnTouchListener { v, event ->
                 item.textWatcher.currencyCode = item.currencyCode
                 item.onEditTextFocused()
                 false
             }
         } else {
+            valueInputField.text = Editable.Factory.getInstance().newEditable(item.value.toString())
             valueInputField.addTextChangedListener(item.textWatcher)
         }
     }

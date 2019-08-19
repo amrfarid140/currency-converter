@@ -50,7 +50,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-
+            android:imeOptions="actionDone"
             android:inputType="numberDecimal"
             tools:text="22.2" />
     </com.google.android.material.textfield.TextInputLayout>

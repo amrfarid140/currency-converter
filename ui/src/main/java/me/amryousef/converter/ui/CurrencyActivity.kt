@@ -21,7 +21,6 @@ class CurrencyActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-
     private val viewModel by lazy {
         ViewModelProvider(this, viewModelFactory).get(CurrencyRatesViewModel::class.java)
     }
@@ -58,14 +57,15 @@ class CurrencyActivity : AppCompatActivity() {
             retryButton.isVisible = false
 
             listAdapter.submitList(
-                state.items.map { item ->
+                state.items.mapIndexed { index, item ->
                     CurrencyRowViewData(
                         currencyCode = item.currencyCode,
-                        value = String.format("%.2f", item.value),
+                        value = item.value,
                         onEditTextFocused = {
                             viewModel.onRowFocused(item.currencyCode)
                         },
-                        textWatcher = valueTextWatcher
+                        textWatcher = valueTextWatcher,
+                        isFocused = index == 0 && valueTextWatcher.currencyCode == item.currencyCode
                     )
                 }
             )
@@ -88,9 +88,10 @@ class CurrencyActivity : AppCompatActivity() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            currencyCode?.let {
-                viewModel.onRowValueChanged(
-                    it, s.toString().toDoubleOrNull() ?: 0.0)
+            currencyCode?.let { currency ->
+                s.toString().toDoubleOrNull()?.let { value ->
+                    viewModel.onRowValueChanged(currency, value)
+                }
             }
         }
     }

@@ -58,13 +58,13 @@ class CurrencyActivity : AppCompatActivity() {
             state.items.firstOrNull()?.currencyCode?.let {
                 valueTextWatcher.currencyCode = it
             }
-
             listAdapter.submitList(
                 state.items.mapIndexed { index, item ->
                     CurrencyRowViewData(
                         currencyCode = item.currencyCode,
                         value = item.value,
                         onEditTextFocused = {
+                            list.smoothScrollToPosition(0)
                             viewModel.onRowFocused(item.currencyCode)
                         },
                         textWatcher = valueTextWatcher,

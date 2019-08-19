@@ -21,8 +21,12 @@ class CurrencyActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+
     private val viewModel by lazy {
         ViewModelProvider(this, viewModelFactory).get(CurrencyRatesViewModel::class.java)
+    }
+    private val valueTextWatcher by lazy {
+        ValueTextWatcher(viewModel)
     }
 
     private val listAdapter = CurrencyListAdapter()
@@ -61,9 +65,7 @@ class CurrencyActivity : AppCompatActivity() {
                         onEditTextFocused = {
                             viewModel.onRowFocused(item.currencyCode)
                         },
-                        textWatcher = ValueTextWatcher { newValue ->
-                            viewModel.onRowValueChanged(item.currencyCode, newValue)
-                        }
+                        textWatcher = valueTextWatcher
                     )
                 }
             )
@@ -77,7 +79,8 @@ class CurrencyActivity : AppCompatActivity() {
         }
     }
 
-    private class ValueTextWatcher(private val onChanged: (Double) -> Unit) : TextWatcher {
+    class ValueTextWatcher(private val viewModel: CurrencyRatesViewModel) : TextWatcher {
+        var currencyCode: String? = null
         override fun afterTextChanged(s: Editable?) {
         }
 
@@ -85,7 +88,10 @@ class CurrencyActivity : AppCompatActivity() {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            onChanged(s.toString().toDoubleOrNull() ?: 0.0)
+            currencyCode?.let {
+                viewModel.onRowValueChanged(
+                    it, s.toString().toDoubleOrNull() ?: 0.0)
+            }
         }
     }
 }

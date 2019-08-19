@@ -31,6 +31,9 @@ class CurrencyActivity : AppCompatActivity() {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_currency)
+        retryButton.setOnClickListener {
+            viewModel.onRetryClicked()
+        }
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = listAdapter
         viewModel.state.observe(this, Observer { handleState(it) })

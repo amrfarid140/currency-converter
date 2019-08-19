@@ -18,7 +18,5 @@ class CurrencyRepositoryImpl @Inject constructor(
             .flatMap { data ->
                 localRepository.addCurrencyRates(data).andThen(Observable.just(data))
             }
-            .doOnError {
-                localRepository.observeCurrencyRates()
-            }
+            .onErrorResumeNext(localRepository.observeCurrencyRates())
 }

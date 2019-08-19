@@ -18,7 +18,7 @@ class CurrencyRepositoryImplTest {
 
     private val repositoryImpl = CurrencyRepositoryImpl(
         localRepository = mockLocalRepository,
-        remoteRepository =  mockRemoteRepository
+        remoteRepository = mockRemoteRepository
     )
 
     @Test
@@ -27,6 +27,8 @@ class CurrencyRepositoryImplTest {
         val mockCurrencyData = listOf(mock<CurrencyRate>())
         given(mockRemoteRepository.observeCurrencyRates())
             .willReturn(Observable.just(mockCurrencyData))
+        given(mockLocalRepository.observeCurrencyRates())
+            .willReturn(Observable.just(emptyList()))
 
         // When
         repositoryImpl.observeCurrencyRates().test()
@@ -40,6 +42,8 @@ class CurrencyRepositoryImplTest {
         // Given
         given(mockRemoteRepository.observeCurrencyRates())
             .willReturn(Observable.error(JsonSyntaxException("Test")))
+        given(mockLocalRepository.observeCurrencyRates())
+            .willReturn(Observable.just(emptyList()))
 
         // When
         repositoryImpl.observeCurrencyRates().test()

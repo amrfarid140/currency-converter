@@ -67,16 +67,16 @@ class CurrencyRatesViewModel @Inject constructor(
     fun onRowValueChanged(currencyCode: String, newValueText: String) =
         newValueText.toDoubleOrNull()?.let { newValue ->
             (state.value as? ViewState.Ready)?.let { currentState ->
-                val currentStateItems = currentState.items
+                val currentStateItems = currentState.items.filter { it.currencyCode != currencyCode }
                 val focusedItem = currentState.items.find { it.currencyCode == currencyCode }
                 val newStateItems = if (focusedItem?.isBase == true) {
-                    updateRates(currentStateItems.subList(1, currentStateItems.size), newValue)
+                    updateRates(currentStateItems, newValue)
                 } else {
                     val originalRate = originalRates.find { it.currencyCode == currencyCode }
                     val newBaseValue =
                         originalRate?.let { safeRate -> safeRate.value.toDoubleOrNull()?.let { newValue / it } }
                             ?: 0.0
-                    updateRates(currentStateItems.subList(1, currentStateItems.size), newBaseValue)
+                    updateRates(currentStateItems, newBaseValue)
                 }
                 _state.value = ViewState.Ready(
                     mutableListOf<ViewStateItem>().apply {

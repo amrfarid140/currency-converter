@@ -87,17 +87,17 @@ class CurrencyRatesViewModelTest {
         val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowValueChanged("EUR", 5.0)
+        viewModel.onRowValueChanged("EUR", "5.0")
 
         val state = viewModel.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
-            expected = 5.0,
+            expected = "5.0",
             actual = state.items.find { it.currencyCode == "EUR" }?.value
         )
         assertEquals(
-            expected = 5.0 * 22.2,
+            expected = String.format("%.2f", 5.0 * 22.2),
             actual = state.items.find { it.currencyCode == "USD" }?.value
         )
     }
@@ -125,17 +125,17 @@ class CurrencyRatesViewModelTest {
         val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowValueChanged("USD", 5.0)
+        viewModel.onRowValueChanged("USD", "5.0")
 
         val state = viewModel.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
-            expected = 5.0,
+            expected = "5.0",
             actual = state.items.find { it.currencyCode == "USD" }?.value
         )
         assertEquals(
-            expected = 5.0 / 22.2,
+            expected = String.format("%.2f", 5.0 / 22.2),
             actual = state.items.find { it.currencyCode == "EUR" }?.value
         )
     }

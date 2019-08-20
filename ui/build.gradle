@@ -3,13 +3,13 @@ apply plugin : "kotlin-android"
 apply plugin : "kotlin-android-extensions"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "me.amryousef.converter.ui.CurrencyTestRunner"
     }
     buildTypes {
         release {
@@ -28,7 +28,6 @@ android {
 
 dependencies {
     implementation project(":presentation")
-    implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
@@ -43,6 +42,10 @@ dependencies {
     testImplementation(AndroidTestDeps.liveDataHelper)
     testImplementation(JvmTestDeps.junit)
 
+    androidTestImplementation(AndroidTestDeps.liveDataHelper)
     androidTestImplementation(AndroidTestDeps.androidJunit)
     androidTestImplementation(AndroidTestDeps.espressoCore)
+    androidTestImplementation(AndroidTestDeps.androidXtestRules)
+    androidTestImplementation(AndroidTestDeps.androidXtestRunner)
+    implementation 'io.mockk:mockk-android:1.9.3.kotlin12'
 }

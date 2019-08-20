@@ -57,20 +57,4 @@ class FetchDataUseCaseTest {
         assertTrue(callbackResultCaptor.lastValue is UseCaseResult.Error)
     }
 
-    @Test
-    @Ignore
-    fun givenObservableCompletes_WhenExecute_ThenOperationsAreRepeatedAfterOneSecond() {
-        val mockData = listOf(mock<CurrencyRate>())
-        given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
-            Observable.just(mockData)
-        )
-
-
-        useCase.execute(onResult = mockCallback)
-        testScheduler.advanceTimeBy(10, TimeUnit.SECONDS)
-
-        verify(mockCurrencyRepository, times(10)).observeCurrencyRates()
-
-    }
-
 }

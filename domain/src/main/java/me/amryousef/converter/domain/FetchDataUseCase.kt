@@ -1,5 +1,6 @@
 package me.amryousef.converter.domain
 
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -20,27 +21,7 @@ class FetchDataUseCase @Inject constructor(
         disposable.add(
             currencyRepository
                 .observeCurrencyRates()
-                .flatMap { currencies ->
-                    countryRepository.getCountryFlagUrl()
-                        .toObservable()
-                        .map { countries ->
-                            currencies.map { currencyRate ->
-                                val currencyCode = currencyRate.currency.currencyCode
-                                CurrencyData(
-                                    countryFlagUrl = if (currencyCode.toLowerCase() == "eur") {
-                                        FLAG_API.format("eu")
-                                    } else {
-                                        countries[currencyRate.currency.currencyCode]?.let { countryCode ->
-                                            FLAG_API.format(countryCode)
-                                        }
-                                    },
-                                    currency = currencyRate.currency,
-                                    isBase = currencyRate.isBase,
-                                    rate = currencyRate.rate
-                                )
-                            }
-                        }
-                }
+                .flatMapToCurrencyData()
                 .repeatWhen { complete -> complete.delay(1, TimeUnit.SECONDS) }
                 .observeOn(schedulerProvider.main())
                 .subscribeOn(schedulerProvider.io())
@@ -54,6 +35,31 @@ class FetchDataUseCase @Inject constructor(
                 )
         )
     }
+
+    private fun Observable<List<CurrencyRate>>.flatMapToCurrencyData() = flatMap { currencies ->
+        countryRepository.getCountryFlagUrl()
+            .toObservable()
+            .map { countries -> currencies.toCurrencyData(countries) }
+    }
+
+    private fun List<CurrencyRate>.toCurrencyData(countriesMap: Map<String, String>) = map { currencyRate ->
+        val currencyCode = currencyRate.currency.currencyCode
+        CurrencyData(
+            countryFlagUrl = countriesMap.getCountryFlagUrl(currencyCode),
+            currency = currencyRate.currency,
+            isBase = currencyRate.isBase,
+            rate = currencyRate.rate
+        )
+    }
+
+    private fun Map<String, String>.getCountryFlagUrl(currencyCode: String) =
+        if (currencyCode.toLowerCase() == "eur") {
+            FLAG_API.format("eu")
+        } else {
+            this[currencyCode]?.let { countryCode ->
+                FLAG_API.format(countryCode)
+            }
+        }
 
     override fun cancel() =
         disposable.clear()

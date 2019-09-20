@@ -66,11 +66,11 @@ class CurrencyActivity : AppCompatActivity() {
             errorMessage.isVisible = false
             retryButton.isVisible = false
             state.items.firstOrNull()?.currencyCode?.let {
-                valueTextWatcher.currencyCode = it
+                valueTextWatcher.setCurrencyCode(it)
             }
 
             listAdapter.submitList(
-                state.items.take(2).mapIndexed { index, item ->
+                state.items.mapIndexed { index, item ->
                     CurrencyRowViewData(
                         countryFlagUrl = item.countryFlagUrl,
                         currencyCode = item.currencyCode,
@@ -96,10 +96,22 @@ class CurrencyActivity : AppCompatActivity() {
 
     class ValueTextWatcher(private val viewModel: CurrencyRatesViewModel) : TextWatcher {
         var currencyCode: String? = null
+            private set
+        var oldText: String = ""
+            private set
+
+        fun setCurrencyCode(code: String) {
+            if (this.currencyCode != code) {
+                this.currencyCode = code
+                oldText = ""
+            }
+        }
+
         override fun afterTextChanged(s: Editable?) {
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            oldText = s?.toString() ?: ""
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

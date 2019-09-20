@@ -3,8 +3,22 @@ package me.amryousef.converter.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 
-class CurrencyListAdapter : ListAdapter<CurrencyRowViewData, CurrencyRowViewHolder>(DiffUtilCallback()) {
+class CurrencyListAdapter : RecyclerView.Adapter<CurrencyRowViewHolder>() {
+
+    private val data = mutableListOf<CurrencyRowViewData>()
+
+    init {
+        setHasStableIds(true)
+    }
+
+    fun submitList(viewData: List<CurrencyRowViewData>) {
+        data.clear()
+        data.addAll(viewData)
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         CurrencyRowViewHolder(parent)
 
@@ -15,15 +29,7 @@ class CurrencyListAdapter : ListAdapter<CurrencyRowViewData, CurrencyRowViewHold
         return getItem(position).currencyCode.hashCode().toLong()
     }
 
-    private class DiffUtilCallback : DiffUtil.ItemCallback<CurrencyRowViewData>() {
-        override fun areItemsTheSame(oldItem: CurrencyRowViewData, newItem: CurrencyRowViewData): Boolean {
-            return oldItem.currencyCode == newItem.currencyCode
-        }
+    private fun getItem(position: Int) = data[position]
 
-        override fun areContentsTheSame(oldItem: CurrencyRowViewData, newItem: CurrencyRowViewData): Boolean {
-            return oldItem.currencyCode == newItem.currencyCode
-                && oldItem.value == newItem.value
-                && oldItem.isFocused == newItem.isFocused
-        }
-    }
+    override fun getItemCount() = data.size
 }

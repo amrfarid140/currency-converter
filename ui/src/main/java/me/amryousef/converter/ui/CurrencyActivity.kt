@@ -28,9 +28,7 @@ class CurrencyActivity : AppCompatActivity() {
         ValueTextWatcher(viewModel)
     }
 
-    private val listAdapter = CurrencyListAdapter().apply {
-        setHasStableIds(true)
-    }
+    private val listAdapter = CurrencyListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -72,7 +70,7 @@ class CurrencyActivity : AppCompatActivity() {
             }
 
             listAdapter.submitList(
-                state.items.mapIndexed { index, item ->
+                state.items.take(2).mapIndexed { index, item ->
                     CurrencyRowViewData(
                         countryFlagUrl = item.countryFlagUrl,
                         currencyCode = item.currencyCode,

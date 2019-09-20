@@ -9,7 +9,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import me.amryousef.converter.domain.CurrencyRate
+import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
 import org.junit.Before
@@ -25,7 +25,7 @@ class CurrencyRatesViewModelTest {
     @get:Rule
     val liveDataRule = InstantTaskExecutorRule()
 
-    private val callbackCaptor = argumentCaptor<(UseCaseResult<List<CurrencyRate>>) -> Unit>()
+    private val callbackCaptor = argumentCaptor<(UseCaseResult<List<CurrencyData>>) -> Unit>()
     private val mockFetchDataUseCase = mock<FetchDataUseCase>()
 
     @Before
@@ -144,12 +144,14 @@ class CurrencyRatesViewModelTest {
         callbackCaptor.lastValue.invoke(
             UseCaseResult.Success(
                 listOf(
-                    CurrencyRate(
+                    CurrencyData(
+                        null,
                         Currency.getInstance("EUR"),
                         1.0,
                         true
                     ),
-                    CurrencyRate(
+                    CurrencyData(
+                        null,
                         Currency.getInstance("USD"),
                         22.2
                     )
@@ -159,5 +161,7 @@ class CurrencyRatesViewModelTest {
     }
 
     private fun viewModel() =
-        CurrencyRatesViewModel(mockFetchDataUseCase)
+        CurrencyRatesViewModel(mockFetchDataUseCase).apply {
+            onViewStarted()
+        }
 }

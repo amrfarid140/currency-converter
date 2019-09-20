@@ -9,27 +9,37 @@
     android:paddingRight="16dp"
     android:paddingBottom="8dp">
 
+    <ImageView
+        android:id="@+id/currency_row_country_flag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/currency_row_currency_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:layout_marginStart="12dp"
         android:textAppearance="?attr/textAppearanceSubtitle1"
         app:layout_constraintBottom_toTopOf="@id/currency_row_currency_name"
         app:layout_constraintEnd_toStartOf="@id/currency_row_currency_value_input_layout"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/currency_row_country_flag"
+        app:layout_constraintTop_toTopOf="@id/currency_row_country_flag"
         tools:text="USD" />
 
     <TextView
         android:id="@+id/currency_row_currency_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/currency_row_country_flag"
         app:layout_constraintEnd_toStartOf="@id/currency_row_currency_value_input_layout"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@id/currency_row_currency_code"
+        app:layout_constraintStart_toEndOf="@id/currency_row_country_flag"
         app:layout_constraintTop_toBottomOf="@id/currency_row_currency_code"
         tools:text="US Dollars" />
 

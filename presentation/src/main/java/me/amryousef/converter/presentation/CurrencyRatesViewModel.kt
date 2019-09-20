@@ -3,6 +3,7 @@ package me.amryousef.converter.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
@@ -70,7 +71,7 @@ class CurrencyRatesViewModel @Inject constructor(
         fetchDataUseCase.execute { result -> result.reduce() }
     }
 
-    private fun UseCaseResult<List<CurrencyRate>>.reduce() =
+    private fun UseCaseResult<List<CurrencyData>>.reduce() =
         when (this) {
             is UseCaseResult.Success -> {
                 val items = data.toStateItem()
@@ -87,8 +88,13 @@ class CurrencyRatesViewModel @Inject constructor(
             is UseCaseResult.Error -> _state.value = ViewState.Error
         }
 
-    private fun List<CurrencyRate>.toStateItem() = map { rate ->
-        ViewStateItem(rate.currency.currencyCode, rate.rate.formatValue(), rate.isBase)
+    private fun List<CurrencyData>.toStateItem() = map { rate ->
+        ViewStateItem(
+            rate.countryFlagUrl,
+            rate.currency.currencyCode,
+            rate.rate.formatValue(),
+            rate.isBase
+        )
     }
 
     private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) =

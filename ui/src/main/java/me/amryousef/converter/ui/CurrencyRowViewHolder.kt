@@ -3,16 +3,24 @@ package me.amryousef.converter.ui
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import java.util.Currency
 import kotlinx.android.synthetic.main.row_currency_item.view.currency_row_currency_code as currencyCode
 import kotlinx.android.synthetic.main.row_currency_item.view.currency_row_currency_name as currencyName
 import kotlinx.android.synthetic.main.row_currency_item.view.currency_row_currency_value_input_field as valueInputField
+import kotlinx.android.synthetic.main.row_currency_item.view.currency_row_country_flag as countryFlag
 
 class CurrencyRowViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
     LayoutInflater.from(parent.context).inflate(R.layout.row_currency_item, parent, false)
 ) {
     fun bind(item: CurrencyRowViewData) = with(itemView) {
+        countryFlag.isVisible = !item.countryFlagUrl.isNullOrEmpty()
+        item.countryFlagUrl?.let {
+            url ->
+            Picasso.get().load(url).into(countryFlag)
+        }
         currencyCode.text = item.currencyCode
         val currency = Currency.getInstance(item.currencyCode)
         currencyName.text = currency.displayName

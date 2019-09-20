@@ -9,7 +9,10 @@ import me.amryousef.converter.app.CurrencyApplication
 import me.amryousef.converter.data.CurrencyRepositoryImpl
 import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.local.LocalWritableCurrencyRepository
+import me.amryousef.converter.data.remote.CountryCodeService
+import me.amryousef.converter.data.remote.RemoteCountryRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
+import me.amryousef.converter.domain.CountryRepository
 import me.amryousef.converter.domain.CurrencyRepository
 import me.amryousef.converter.domain.WritableCurrencyRepository
 import okhttp3.OkHttpClient
@@ -44,6 +47,17 @@ class DataModule {
             .build()
             .create(CurrencyRatesService::class.java)
 
+    @Singleton
+    @Provides
+    fun provideCountryCodeService(gson: Gson): CountryCodeService =
+        Retrofit.Builder()
+            .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
+            .baseUrl("http://country.io/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+            .create(CountryCodeService::class.java)
+
     @Named("local")
     @Singleton
     @Provides
@@ -57,6 +71,12 @@ class DataModule {
     fun provideRemoteRepository(
         remote: RemoteCurrencyRepository
     ): CurrencyRepository = remote
+
+    @Singleton
+    @Provides
+    fun provideCountryRepository(
+        countryRepository: RemoteCountryRepository
+    ): CountryRepository = countryRepository
 
     @Singleton
     @Provides

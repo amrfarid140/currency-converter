@@ -74,6 +74,7 @@ class CurrencyActivity : AppCompatActivity() {
             listAdapter.submitList(
                 state.items.mapIndexed { index, item ->
                     CurrencyRowViewData(
+                        countryFlagUrl = item.countryFlagUrl,
                         currencyCode = item.currencyCode,
                         value = item.value,
                         onEditTextFocused = {

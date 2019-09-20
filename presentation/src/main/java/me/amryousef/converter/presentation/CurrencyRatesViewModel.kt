@@ -16,34 +16,12 @@ class CurrencyRatesViewModel @Inject constructor(
     val state: LiveData<ViewState> = _state
     private val originalRates = mutableListOf<ViewStateItem>()
 
-    init {
+    fun onViewStarted() {
         loadData()
     }
 
-    private fun loadData() {
-        _state.value = ViewState.Loading
-        fetchDataUseCase.execute { result -> result.reduce() }
-    }
-
-    private fun UseCaseResult<List<CurrencyRate>>.reduce() =
-        when (this) {
-            is UseCaseResult.Success -> {
-                val items = data.toStateItem()
-                originalRates.clear()
-                originalRates.addAll(items)
-                (_state.value as? ViewState.Ready)?.let { currentState ->
-                    val focusedItem = currentState.items.first()
-                    onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
-                } ?: run {
-                    _state.value = ViewState.Ready(items)
-                }
-            }
-
-            is UseCaseResult.Error -> _state.value = ViewState.Error
-        }
-
-    private fun List<CurrencyRate>.toStateItem() = map { rate ->
-        ViewStateItem(rate.currency.currencyCode, rate.rate.formatValue(), rate.isBase)
+    fun onViewPaused() {
+        fetchDataUseCase.cancel()
     }
 
     fun onRetryClicked() {
@@ -86,6 +64,32 @@ class CurrencyRatesViewModel @Inject constructor(
                 )
             }
         }
+
+    private fun loadData() {
+        _state.value = ViewState.Loading
+        fetchDataUseCase.execute { result -> result.reduce() }
+    }
+
+    private fun UseCaseResult<List<CurrencyRate>>.reduce() =
+        when (this) {
+            is UseCaseResult.Success -> {
+                val items = data.toStateItem()
+                originalRates.clear()
+                originalRates.addAll(items)
+                (_state.value as? ViewState.Ready)?.let { currentState ->
+                    val focusedItem = currentState.items.first()
+                    onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
+                } ?: run {
+                    _state.value = ViewState.Ready(items)
+                }
+            }
+
+            is UseCaseResult.Error -> _state.value = ViewState.Error
+        }
+
+    private fun List<CurrencyRate>.toStateItem() = map { rate ->
+        ViewStateItem(rate.currency.currencyCode, rate.rate.formatValue(), rate.isBase)
+    }
 
     private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) =
         currentStateItems.map { currentValue ->

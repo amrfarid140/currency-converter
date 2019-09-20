@@ -23,7 +23,7 @@ object Versions {
 }
 
 object BuildDeps {
-    const val AGP = "com.android.tools.build:gradle:3.5.0-rc03"
+    const val AGP = "com.android.tools.build:gradle:3.5.0"
     const val KGP = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
 }
 

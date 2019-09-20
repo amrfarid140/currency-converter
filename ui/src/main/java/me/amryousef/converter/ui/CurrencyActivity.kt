@@ -28,7 +28,9 @@ class CurrencyActivity : AppCompatActivity() {
         ValueTextWatcher(viewModel)
     }
 
-    private val listAdapter = CurrencyListAdapter()
+    private val listAdapter = CurrencyListAdapter().apply {
+        setHasStableIds(true)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -40,6 +42,16 @@ class CurrencyActivity : AppCompatActivity() {
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = listAdapter
         viewModel.state.observe(this, Observer { handleState(it) })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.onViewStarted()
+    }
+
+    override fun onPause() {
+        viewModel.onViewPaused()
+        super.onPause()
     }
 
     private fun handleState(state: ViewState) = when (state) {
@@ -58,6 +70,7 @@ class CurrencyActivity : AppCompatActivity() {
             state.items.firstOrNull()?.currencyCode?.let {
                 valueTextWatcher.currencyCode = it
             }
+
             listAdapter.submitList(
                 state.items.mapIndexed { index, item ->
                     CurrencyRowViewData(

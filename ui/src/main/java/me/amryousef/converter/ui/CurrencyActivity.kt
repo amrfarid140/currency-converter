@@ -76,7 +76,7 @@ class CurrencyActivity : AppCompatActivity() {
                         currencyCode = item.currencyCode,
                         value = item.value,
                         onEditTextFocused = {
-                            list.smoothScrollToPosition(0)
+                            list.scrollToPosition(0)
                             viewModel.onRowFocused(item.currencyCode)
                         },
                         textWatcher = valueTextWatcher,

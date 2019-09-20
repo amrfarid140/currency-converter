@@ -4,6 +4,6 @@ import io.reactivex.Single
 import retrofit2.http.GET
 
 interface CurrencyRatesService {
-    @GET("latest?base=EUR")
+    @GET("function-1")
     fun getLatestRates(): Single<Map<String, Any>>
 }

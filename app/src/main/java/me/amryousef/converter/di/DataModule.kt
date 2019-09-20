@@ -31,32 +31,29 @@ class DataModule {
     fun provideSharedPreferences(application: CurrencyApplication) =
         application.getSharedPreferences("local_store", Context.MODE_PRIVATE)
 
-
     @Singleton
     @Provides
     fun provideGson() = Gson()
 
     @Singleton
     @Provides
-    fun provideApiService(gson: Gson): CurrencyRatesService =
+    fun provideRetrofit(gson: Gson): Retrofit =
         Retrofit.Builder()
             .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
-            .baseUrl("https://revolut.duckdns.org/")
+            .baseUrl("https://us-central1-gentle-studio-241820.cloudfunctions.net/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
-            .create(CurrencyRatesService::class.java)
 
     @Singleton
     @Provides
-    fun provideCountryCodeService(gson: Gson): CountryCodeService =
-        Retrofit.Builder()
-            .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
-            .baseUrl("http://country.io/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-            .create(CountryCodeService::class.java)
+    fun provideApiService(retrofit: Retrofit): CurrencyRatesService =
+        retrofit.create(CurrencyRatesService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideCountryCodeService(retrofit: Retrofit): CountryCodeService =
+        retrofit.create(CountryCodeService::class.java)
 
     @Named("local")
     @Singleton

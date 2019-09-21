@@ -8,6 +8,7 @@ object Versions {
     const val retrofit = "2.6.1"
     const val retrofitLogger = "4.1.0"
     const val mockitoAndroid = "3.0.0"
+    const val picasso = "2.71828"
 
     const val kotlin = "1.3.41"
 
@@ -31,6 +32,7 @@ object BuildDeps {
 }
 
 object AndroidDeps {
+    const val picasso = "com.squareup.picasso:picasso:${Versions.picasso}"
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
     const val coreKtx = "androidx.core:core-ktx:${Versions.coreKtx}"
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"

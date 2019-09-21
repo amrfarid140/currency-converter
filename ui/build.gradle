@@ -31,6 +31,7 @@ dependencies {
 
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
+    implementation(AndroidDeps.picasso)
     implementation(AndroidDeps.constraintLayout)
     implementation(AndroidDeps.coreKtx)
     implementation(AndroidDeps.liveData)

@@ -20,14 +20,9 @@ class CurrencyRowViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
         .inflate(R.layout.row_currency_item, parent, false)
 ) {
     fun bind(item: CurrencyRowViewData) = with(itemView) {
-        if (item.isFocused) {
-            Log.v(this.javaClass.simpleName, "currency ${item.currencyCode}")
-            Log.v(this@CurrencyRowViewHolder.javaClass.simpleName, "currency ${item.value}")
-        }
         setupFlag(item)
         setupLabels(item)
         setupInput(item)
-
     }
 
     private fun View.setupFlag(item: CurrencyRowViewData) {

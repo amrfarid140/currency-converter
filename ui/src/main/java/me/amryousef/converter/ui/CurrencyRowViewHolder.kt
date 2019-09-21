@@ -1,6 +1,7 @@
 package me.amryousef.converter.ui
 
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +20,14 @@ class CurrencyRowViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
         .inflate(R.layout.row_currency_item, parent, false)
 ) {
     fun bind(item: CurrencyRowViewData) = with(itemView) {
+        if (item.isFocused) {
+            Log.v(this.javaClass.simpleName, "currency ${item.currencyCode}")
+            Log.v(this@CurrencyRowViewHolder.javaClass.simpleName, "currency ${item.value}")
+        }
         setupFlag(item)
         setupLabels(item)
         setupInput(item)
+
     }
 
     private fun View.setupFlag(item: CurrencyRowViewData) {
@@ -40,7 +46,7 @@ class CurrencyRowViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
     private fun View.setupInput(item: CurrencyRowViewData) {
         valueInputField.setOnTouchListener(null)
         valueInputField.removeTextChangedListener(item.textWatcher)
-        if (item.textWatcher.currencyCode != item.currencyCode) {
+        if (item.textWatcher.currencyCode != item.currencyCode || !valueInputField.hasFocus()) {
             setupNonFocusedItem(item)
         } else {
             setupFocusedItem(item)

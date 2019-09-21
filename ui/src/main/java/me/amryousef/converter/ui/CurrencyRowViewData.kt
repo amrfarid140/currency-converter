@@ -5,6 +5,6 @@ data class CurrencyRowViewData(
     val currencyCode: String,
     val value: String,
     val isFocused: Boolean,
-    val textWatcher: CurrencyActivity.ValueTextWatcher,
+    val textWatcher: ValueTextWatcher,
     val onEditTextFocused: () -> Unit
 )

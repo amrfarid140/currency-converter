@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import me.amryousef.converter.domain.CurrencyData
-import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
 import javax.inject.Inject
@@ -30,42 +29,6 @@ class CurrencyRatesViewModel @Inject constructor(
         loadData()
     }
 
-    fun onRowFocused(currencyCode: String) =
-        (_state.value as? ViewState.Ready)?.let { currentState ->
-            _state.value = ViewState.Ready(
-                mutableSetOf<ViewStateItem>().apply {
-                    currentState.items.find { it.currencyCode == currencyCode }?.let { add(it) }
-                    addAll(
-                        currentState.items
-                    )
-
-                }.toList()
-            )
-        } ?: Unit
-
-    fun onRowValueChanged(currencyCode: String, newValueText: String) =
-        newValueText.toDoubleOrNull()?.let { newValue ->
-            (state.value as? ViewState.Ready)?.let { currentState ->
-                val currentStateItems = currentState.items.filter { it.currencyCode != currencyCode }
-                val focusedItem = currentState.items.find { it.currencyCode == currencyCode }
-                val newStateItems = if (focusedItem?.isBase == true) {
-                    updateRates(currentStateItems, newValue)
-                } else {
-                    val originalRate = originalRates.find { it.currencyCode == currencyCode }
-                    val newBaseValue =
-                        originalRate?.let { safeRate -> safeRate.value.toDoubleOrNull()?.let { newValue / it } }
-                            ?: 0.0
-                    updateRates(currentStateItems, newBaseValue)
-                }
-                _state.value = ViewState.Ready(
-                    mutableListOf<ViewStateItem>().apply {
-                        focusedItem?.let { item -> add(item.copy(value = newValueText)) }
-                        addAll(newStateItems)
-                    }
-                )
-            }
-        }
-
     private fun loadData() {
         _state.value = ViewState.Loading
         fetchDataUseCase.execute { result -> result.reduce() }
@@ -77,16 +40,68 @@ class CurrencyRatesViewModel @Inject constructor(
                 val items = data.toStateItem()
                 originalRates.clear()
                 originalRates.addAll(items)
-                (_state.value as? ViewState.Ready)?.let { currentState ->
-                    val focusedItem = currentState.items.first()
-                    onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
-                } ?: run {
-                    _state.value = ViewState.Ready(items)
-                }
+                setReadyState(items)
             }
 
             is UseCaseResult.Error -> _state.value = ViewState.Error
         }
+
+    private fun UseCaseResult<List<CurrencyData>>.setReadyState(items: List<ViewStateItem>) =
+        (_state.value as? ViewState.Ready)?.let { currentState ->
+            val focusedItem = currentState.items.first()
+            onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
+        } ?: run {
+            _state.value = ViewState.Ready(items)
+        }
+
+    fun onRowFocused(currencyCode: String) =
+        computeStateFromReady {
+            ViewState.Ready(
+                mutableSetOf<ViewStateItem>().apply {
+                    items.find { it.currencyCode == currencyCode }?.let { add(it) }
+                    addAll(items)
+                }.toList()
+            )
+        }
+
+    fun onRowValueChanged(currencyCode: String, newValueText: String) =
+        newValueText.toDoubleOrNull()?.let { newValue ->
+            computeStateFromReady {
+                val currentStateItems = items.filter { it.currencyCode != currencyCode }
+                val focusedItem = items.find { it.currencyCode == currencyCode }
+                val newStateItems = focusedItem.updateOriginalRates(
+                    currencyCode,
+                    newValue,
+                    currentStateItems
+                )
+                ViewState.Ready(
+                    mutableListOf<ViewStateItem>().apply {
+                        focusedItem?.let { item -> add(item.copy(value = newValueText)) }
+                        addAll(newStateItems)
+                    }
+                )
+            }
+        }
+
+    private fun ViewStateItem?.updateOriginalRates(
+        currencyCode: String,
+        newValue: Double,
+        currentStateItems: List<ViewStateItem>) =
+        if (this?.isBase == true) {
+            updateRates(currentStateItems, newValue)
+        } else {
+            val originalRate = originalRates.find { it.currencyCode == currencyCode }
+            val newBaseValue =
+                originalRate?.let { safeRate -> safeRate.value.toDoubleOrNull()?.let { newValue / it } }
+                    ?: 0.0
+            updateRates(currentStateItems, newBaseValue)
+        }
+
+    private fun computeStateFromReady(block: ViewState.Ready.() -> ViewState.Ready) =
+        (_state.value as? ViewState.Ready)?.let { currentState ->
+            _state.value = currentState.block()
+            true
+        } ?: false
 
     private fun List<CurrencyData>.toStateItem() = map { rate ->
         ViewStateItem(

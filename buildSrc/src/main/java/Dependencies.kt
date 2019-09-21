@@ -4,8 +4,10 @@ object Versions {
     const val coreKtx = "1.1.0-rc03"
     const val constraintLayout = "2.0.0-beta2"
     const val materialComponents = "1.0.0"
+    const val androidXTest = "1.1.0"
     const val retrofit = "2.6.1"
     const val retrofitLogger = "4.1.0"
+    const val mockitoAndroid = "3.0.0"
 
     const val kotlin = "1.3.41"
 
@@ -20,6 +22,7 @@ object Versions {
     const val daggerAndroid = "2.24"
     const val gson = "2.8.5"
     const val mockitoKotlin = "2.1.0"
+    const val dexOpenerVersion = "2.0.0"
 }
 
 object BuildDeps {
@@ -49,6 +52,11 @@ object AndroidTestDeps {
     const val androidJunit = "androidx.test.ext:junit:${Versions.androidJunit}"
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
     const val liveDataHelper = "androidx.arch.core:core-testing:${Versions.lifecycleVersion}"
+    const val androidXtestRunner = "androidx.test:runner:${Versions.androidXTest}"
+    const val androidXtestRules= "androidx.test:rules:${Versions.androidXTest}"
+    const val dexOpener = "com.github.tmurakami:dexopener:${Versions.dexOpenerVersion}"
+    const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockitoAndroid}"
+    const val mockitoCore = "org.mockito:mockito-core:${Versions.mockitoAndroid}"
 }
 
 object JvmDeps{
@@ -64,5 +72,5 @@ object JvmTestDeps {
     const val junit = "junit:junit:${Versions.junit}"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
-    const val mockitoInline = "org.mockito:mockito-inline:3.0.0"
+    const val mockitoInline = "org.mockito:mockito-inline:${Versions.mockitoAndroid}"
 }

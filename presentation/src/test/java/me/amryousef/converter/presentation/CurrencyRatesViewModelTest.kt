@@ -35,17 +35,18 @@ class CurrencyRatesViewModelTest {
     }
 
     @Test
+    fun whenViewPaused_ThenUseCaseIsCancelled() {
+        val viewModel = viewModel()
+        viewModel.onViewPaused()
+        verify(mockFetchDataUseCase).cancel()
+    }
+    
+    @Test
     fun givenUseCaseFails_WhenViewModelLoads_ThenStateIsError() {
         val viewModel = viewModel()
         callbackCaptor.lastValue.invoke(UseCaseResult.Error(Throwable()))
 
         assertTrue(viewModel.state.value is ViewState.Error)
-    }
-
-    @Test
-    fun givenUseCaseIsLoading_WhenViewModelExecutesUseCase_ThenStateIsLoading() {
-        val viewModel = viewModel()
-        assertTrue(viewModel.state.value is ViewState.Loading)
     }
 
     @Test

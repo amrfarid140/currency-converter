@@ -12,7 +12,9 @@ class CurrencyRatesViewModel @Inject constructor(
     private val fetchDataUseCase: FetchDataUseCase
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<ViewState>()
+    private val _state = MutableLiveData<ViewState>().apply {
+        value = ViewState.Loading
+    }
     val state: LiveData<ViewState> = _state
     private val originalRates = mutableListOf<ViewStateItem>()
 
@@ -26,11 +28,11 @@ class CurrencyRatesViewModel @Inject constructor(
 
     fun onRetryClicked() {
         fetchDataUseCase.cancel()
+        _state.value = ViewState.Loading
         loadData()
     }
 
     private fun loadData() {
-        _state.value = ViewState.Loading
         fetchDataUseCase.execute { result -> result.reduce() }
     }
 

@@ -32,7 +32,8 @@ class RemoteCurrencyRepositoryMapperTest {
         assertEquals(
             expected = CurrencyRate(
                 currency = Currency.getInstance("EUR"),
-                rate = 1.0
+                rate = 1.0,
+                isBase = true
             ),
             actual = result.first()
         )

@@ -25,7 +25,8 @@ class RemoteCurrencyRepositoryMapper @Inject constructor(private val gson: Gson)
                         0,
                         CurrencyRate(
                             Currency.getInstance(apiData["base"] as String),
-                            1.0
+                            1.0,
+                            true
                         )
                     )
 

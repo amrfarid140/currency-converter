@@ -1,33 +1,33 @@
 object Versions {
-    const val appCompat = "1.1.0-rc01"
-    const val lifecycleVersion = "2.0.0"
-    const val coreKtx = "1.1.0-rc03"
-    const val constraintLayout = "2.0.0-beta2"
-    const val materialComponents = "1.0.0"
-    const val androidXTest = "1.1.0"
-    const val retrofit = "2.6.1"
-    const val retrofitLogger = "4.1.0"
-    const val mockitoAndroid = "3.0.0"
+    const val appCompat = "1.2.0-rc01"
+    const val lifecycleVersion = "2.1.0"
+    const val coreKtx = "1.3.0"
+    const val constraintLayout = "2.0.0-beta7"
+    const val materialComponents = "1.2.0-beta01"
+    const val androidXTest = "1.2.0"
+    const val retrofit = "2.9.0"
+    const val retrofitLogger = "4.7.2"
+    const val mockitoAndroid = "3.3.3"
     const val picasso = "2.71828"
 
-    const val kotlin = "1.3.41"
+    const val kotlin = "1.3.72"
 
-    const val junit = "4.12"
+    const val junit = "4.13"
     const val androidJunit = "1.1.0"
     const val espressoCore = "3.1.1"
 
-    const val rxJava = "2.2.11"
+    const val rxJava = "2.2.19"
     const val rxAndroid = "2.1.1"
     const val rxKotlin = "2.4.0"
 
-    const val daggerAndroid = "2.24"
-    const val gson = "2.8.5"
-    const val mockitoKotlin = "2.1.0"
-    const val dexOpenerVersion = "2.0.0"
+    const val daggerAndroid = "2.28.1"
+    const val gson = "2.8.6"
+    const val mockitoKotlin = "2.2.0"
+    const val dexOpenerVersion = "2.0.4"
 }
 
 object BuildDeps {
-    const val AGP = "com.android.tools.build:gradle:3.5.0"
+    const val AGP = "com.android.tools.build:gradle:4.0.0"
     const val KGP = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
 }
 
@@ -46,8 +46,10 @@ object AndroidDeps {
     const val viewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycleVersion}"
     const val liveData = "androidx.lifecycle:lifecycle-livedata:${Versions.lifecycleVersion}"
     const val lifecycleCommon = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycleVersion}"
-    const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
-    const val materialComponents = "com.google.android.material:material:1.0.0"
+    const val constraintLayout =
+        "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    const val materialComponents =
+        "com.google.android.material:material:${Versions.materialComponents}"
 }
 
 object AndroidTestDeps {

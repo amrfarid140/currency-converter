@@ -57,7 +57,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/currency_row_currency_value_input_field"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Transparent"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="end"

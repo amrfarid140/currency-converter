@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="toolbarStyle">@style/Toolbar</item>
-        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
     </style>
 
     <style name="Toolbar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@color/colorBackground</item>
         <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.TextInputLayout.FilledBox.Transparent">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

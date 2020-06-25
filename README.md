@@ -1,6 +1,6 @@
 # Currency Converter
 
-This application helps users to convert from one currency to the other. It uses Euro as the base currency. The application refreshes its data every second without disrupting the UI.
+This application helps users to convert from one currency to the other. It uses Euro as the base currency. The application refreshes its data every five seconds without disrupting the UI.
 
 Asynchronous execution of business logic is done used RxJava.
 API calls are made using Retrofit.

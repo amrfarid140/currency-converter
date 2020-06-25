@@ -1,12 +1,15 @@
 package me.amryousef.converter.data
 
 import com.google.gson.JsonSyntaxException
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Observable
+import io.reactivex.schedulers.TestScheduler
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
+import me.amryousef.converter.domain.SchedulerProvider
 import me.amryousef.converter.domain.WritableCurrencyRepository
 import org.junit.Test
 
@@ -15,10 +18,16 @@ class CurrencyRepositoryImplTest {
         mock<WritableCurrencyRepository>()
     private val mockRemoteRepository =
         mock<CurrencyRepository>()
+    private val testScheduler = TestScheduler()
+    private val mockScheduler = mock<SchedulerProvider> {
+        on { io() } doReturn testScheduler
+        on { main() } doReturn testScheduler
+    }
 
     private val repositoryImpl = CurrencyRepositoryImpl(
         localRepository = mockLocalRepository,
-        remoteRepository = mockRemoteRepository
+        remoteRepository = mockRemoteRepository,
+        schedulerProvider = mockScheduler
     )
 
     @Test
@@ -32,6 +41,7 @@ class CurrencyRepositoryImplTest {
 
         // When
         repositoryImpl.observeCurrencyRates().test()
+        testScheduler.triggerActions()
 
         // Then
         verify(mockLocalRepository).addCurrencyRates(mockCurrencyData)
@@ -47,6 +57,7 @@ class CurrencyRepositoryImplTest {
 
         // When
         repositoryImpl.observeCurrencyRates().test()
+        testScheduler.triggerActions()
 
         // Then
         verify(mockLocalRepository).observeCurrencyRates()

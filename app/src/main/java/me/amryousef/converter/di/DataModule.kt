@@ -40,7 +40,7 @@ class DataModule {
     fun provideRetrofit(gson: Gson): Retrofit =
         Retrofit.Builder()
             .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
-            .baseUrl("https://us-central1-gentle-studio-241820.cloudfunctions.net/")
+            .baseUrl("https://us-central1-testfirestore-fd7e2.cloudfunctions.net/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()

@@ -1,22 +1,27 @@
 package me.amryousef.converter.data
 
 import com.google.gson.JsonSyntaxException
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import io.reactivex.Single
+import io.reactivex.schedulers.TestScheduler
 import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepositoryMapper
+import me.amryousef.converter.domain.SchedulerProvider
 import org.junit.Test
 
 class RemoteCurrencyRepositoryTest {
     private val mockMapper = mock<RemoteCurrencyRepositoryMapper>()
     private val mockApiService = mock<CurrencyRatesService>()
+    private val testScheduler = TestScheduler()
+    private val mockScheduler = mock<SchedulerProvider> {
+        on { io() } doReturn testScheduler
+        on { main() } doReturn testScheduler
+    }
     private val remoteRepository = RemoteCurrencyRepository(
         apiService = mockApiService,
-        mapper = mockMapper
+        mapper = mockMapper,
+        schedulerProvider = mockScheduler
     )
 
     @Test
@@ -27,6 +32,7 @@ class RemoteCurrencyRepositoryTest {
 
         // When
         remoteRepository.observeCurrencyRates().test()
+        testScheduler.triggerActions()
 
         // Then
         verify(mockMapper).map(any())
@@ -43,6 +49,7 @@ class RemoteCurrencyRepositoryTest {
         // When
         val observer = remoteRepository.observeCurrencyRates()
             .test()
+        testScheduler.triggerActions()
 
         // Then
         observer.assertFailure(JsonSyntaxException::class.java)

@@ -4,6 +4,6 @@ import io.reactivex.Single
 import retrofit2.http.GET
 
 interface CountryCodeService {
-    @GET("function-2")
+    @GET("countries")
     fun getCountryCodes(): Single<Map<String, String>>
 }

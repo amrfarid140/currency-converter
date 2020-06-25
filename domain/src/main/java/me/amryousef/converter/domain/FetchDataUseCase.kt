@@ -22,9 +22,8 @@ class FetchDataUseCase @Inject constructor(
             currencyRepository
                 .observeCurrencyRates()
                 .flatMapToCurrencyData()
-                .repeatWhen { complete -> complete.delay(1, TimeUnit.SECONDS) }
+                .repeatWhen { complete -> complete.delay(5, TimeUnit.SECONDS) }
                 .observeOn(schedulerProvider.main())
-                .subscribeOn(schedulerProvider.io())
                 .subscribe(
                     { data ->
                         onResult(UseCaseResult.Success(data))
@@ -39,18 +38,21 @@ class FetchDataUseCase @Inject constructor(
     private fun Observable<List<CurrencyRate>>.flatMapToCurrencyData() = flatMap { currencies ->
         countryRepository.getCountryFlagUrl()
             .toObservable()
-            .map { countries -> currencies.toCurrencyData(countries) }
+            .map { countries ->
+                currencies.toCurrencyData(countries)
+            }.subscribeOn(schedulerProvider.io())
     }
 
-    private fun List<CurrencyRate>.toCurrencyData(countriesMap: Map<String, String>) = map { currencyRate ->
-        val currencyCode = currencyRate.currency.currencyCode
-        CurrencyData(
-            countryFlagUrl = countriesMap.getCountryFlagUrl(currencyCode),
-            currency = currencyRate.currency,
-            isBase = currencyRate.isBase,
-            rate = currencyRate.rate
-        )
-    }
+    private fun List<CurrencyRate>.toCurrencyData(countriesMap: Map<String, String>) =
+        map { currencyRate ->
+            val currencyCode = currencyRate.currency.currencyCode
+            CurrencyData(
+                countryFlagUrl = countriesMap.getCountryFlagUrl(currencyCode),
+                currency = currencyRate.currency,
+                isBase = currencyRate.isBase,
+                rate = currencyRate.rate
+            )
+        }
 
     private fun Map<String, String>.getCountryFlagUrl(currencyCode: String) =
         if (currencyCode.toLowerCase() == "eur") {

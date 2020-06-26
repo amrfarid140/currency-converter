@@ -1,15 +1,16 @@
 package me.amryousef.converter.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dagger.Module
 import dagger.Provides
 import me.amryousef.converter.app.CurrencyApplication
 import me.amryousef.converter.data.CurrencyRepositoryImpl
-import me.amryousef.converter.data.remote.CurrencyRatesService
-import me.amryousef.converter.data.local.LocalWritableCurrencyRepository
+import me.amryousef.converter.data.Database
+import me.amryousef.converter.data.local.SqlWritableCurrencyRepository
 import me.amryousef.converter.data.remote.CountryCodeService
+import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.remote.RemoteCountryRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
 import me.amryousef.converter.domain.CountryRepository
@@ -25,6 +26,11 @@ import javax.inject.Singleton
 
 @Module
 class DataModule {
+
+    @Singleton
+    @Provides
+    fun provideSqlDriver(application: CurrencyApplication): Database =
+        Database(AndroidSqliteDriver(Database.Schema, application, "currency.db"))
 
     @Singleton
     @Provides
@@ -59,7 +65,7 @@ class DataModule {
     @Singleton
     @Provides
     fun provideLocalRepository(
-        local: LocalWritableCurrencyRepository
+        local: SqlWritableCurrencyRepository
     ): WritableCurrencyRepository = local
 
     @Named("remote")

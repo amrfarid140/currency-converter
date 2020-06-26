@@ -2,16 +2,10 @@ package me.amryousef.converter.data
 
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import me.amryousef.converter.data.local.LocalWritableCurrencyRepository
+import com.nhaarman.mockitokotlin2.*
 import me.amryousef.converter.domain.CurrencyRate
 import org.junit.Test
-import java.util.Currency
+import java.util.*
 
 class LocalWritableCurrencyRepositoryTest {
     private val mockSharedPreferencesEditor = mock<SharedPreferences.Editor>()

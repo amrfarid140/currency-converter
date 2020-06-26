@@ -1,0 +1,19 @@
+CREATE TABLE CurrencyRate (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+currency_code TEXT NOT NULL,
+rate REAL AS Float NOT NULL,
+timestamp INTEGER NOT NULL DEFAULT (DATETIME('now')),
+FOREIGN KEY(currency_code) REFERENCES Currency(code)
+);
+
+allRatesForCurrency:
+SELECT * FROM CurrencyRate WHERE CurrencyRate.currency_code = ?;
+
+insertCurrencyRate:
+INSERT INTO CurrencyRate (currency_code, rate) VALUES (?, ?);
+
+getLatestRateForCurrency:
+SELECT * FROM CurrencyRate WHERE CurrencyRate.currency_code = ? ORDER BY date(timestamp) DESC LIMIT 1;
+
+
+

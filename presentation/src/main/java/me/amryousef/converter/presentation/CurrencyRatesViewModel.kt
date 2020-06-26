@@ -42,7 +42,11 @@ class CurrencyRatesViewModel @Inject constructor(
                 val items = data.toStateItem()
                 originalRates.clear()
                 originalRates.addAll(items)
-                setReadyState(items)
+                if (items.isNotEmpty()) {
+                    setReadyState(items)
+                } else {
+                    _state.value = ViewState.Loading
+                }
             }
 
             is UseCaseResult.Error -> _state.value = ViewState.Error

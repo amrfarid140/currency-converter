@@ -2,7 +2,6 @@ apply plugin : "com.android.application"
 apply plugin : "kotlin-android"
 apply plugin : "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
-
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -18,6 +17,10 @@ android {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -38,6 +41,7 @@ dependencies {
     implementation(AndroidDeps.retrofitLogger)
     implementation(AndroidDeps.rxAndroid)
     implementation(AndroidDeps.rxKotlin)
+    implementation "com.squareup.sqldelight:android-driver:1.4.0"
 
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)

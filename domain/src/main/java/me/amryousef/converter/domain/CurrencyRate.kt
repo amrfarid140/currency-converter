@@ -1,5 +1,9 @@
 package me.amryousef.converter.domain
 
-import java.util.Currency
+data class CurrencyRate(
+    val currency: CurrencyMetadata,
+    val rate: Double,
+    val isBase: Boolean = false
+)
 
-data class CurrencyRate (val currency: Currency, val rate: Double, val isBase: Boolean = false)
+data class CurrencyMetadata(val currencyCode: String, val flagUrl: String?)

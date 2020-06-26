@@ -1,0 +1,24 @@
+CREATE TABLE Currency (
+  code TEXT NOT NULL PRIMARY KEY,
+  flag_url TEXT,
+  is_base INTEGER AS Boolean NOT NULL,
+  UNIQUE(code, flag_url)
+);
+
+insert:
+INSERT OR IGNORE INTO Currency (code, flag_url, is_base) VALUES(?, ?, ?);
+
+selectAllWithLatestRate:
+SELECT  c.*, p.*
+FROM Currency c INNER JOIN
+        (
+            SELECT  currency_code,
+                    MAX(timestamp) MaxDate
+            FROM    CurrencyRate
+            GROUP BY currency_code
+        ) MaxDates ON c.code = MaxDates.currency_code INNER JOIN
+        CurrencyRate p ON   MaxDates.currency_code = p.currency_code
+                    AND MaxDates.MaxDate = p.timestamp;
+
+selectByCode:
+SELECT * FROM Currency WHERE Currency.code = ?;

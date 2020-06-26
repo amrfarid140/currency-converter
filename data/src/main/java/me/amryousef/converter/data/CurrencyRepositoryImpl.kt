@@ -1,11 +1,12 @@
 package me.amryousef.converter.data
 
-import android.util.Log
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
 import me.amryousef.converter.domain.SchedulerProvider
 import me.amryousef.converter.domain.WritableCurrencyRepository
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -15,12 +16,23 @@ class CurrencyRepositoryImpl @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : CurrencyRepository {
 
+    private var disposable: Disposable? = null
+
+
     override fun observeCurrencyRates(): Observable<List<CurrencyRate>> =
-        remoteRepository
-            .observeCurrencyRates()
-            .flatMap { data ->
-                localRepository.addCurrencyRates(data).andThen(Observable.just(data))
+        localRepository.observeCurrencyRates()
+            .doOnSubscribe {
+                if (disposable == null) {
+                    disposable = remoteRepository.observeCurrencyRates()
+                        .flatMapCompletable { localRepository.addCurrencyRates(it) }
+                        .onErrorComplete()
+                        .repeatWhen { complete -> complete.delay(5, TimeUnit.SECONDS) }
+                        .subscribeOn(schedulerProvider.io())
+                        .subscribe()
+                }
+            }.doOnDispose {
+                disposable?.dispose()
+                disposable = null
             }
-            .onErrorResumeNext(localRepository.observeCurrencyRates())
             .subscribeOn(schedulerProvider.io())
 }

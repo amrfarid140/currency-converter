@@ -9,11 +9,15 @@ class RemoteCountryRepository @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : CountryRepository {
 
+    companion object {
+        const val FLAG_API = "https://www.countryflags.io/%s/flat/64.png"
+    }
+
     override fun getCountryFlagUrl() =
         countryCodeService.getCountryCodes()
             .map {
                 it.entries.map { entry ->
-                    entry.value to entry.key
+                    entry.value to FLAG_API.format(entry.key)
                 }.toMap()
             }
             .subscribeOn(schedulerProvider.io())

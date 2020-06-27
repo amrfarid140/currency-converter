@@ -38,11 +38,11 @@ dependencies {
     implementation(AndroidDeps.rxKotlin)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.gson)
-    implementation "com.squareup.sqldelight:rxjava2-extensions:1.4.0"
+    implementation(JvmDeps.sqlDelightRxJava)
 
 
     testImplementation(JvmTestDeps.junit)
-    testImplementation 'com.squareup.sqldelight:sqlite-driver:1.2.2'
+    testImplementation(JvmTestDeps.sqlDelight)
     testImplementation(JvmTestDeps.kotlinTest)
     testImplementation(JvmTestDeps.mockitoInline)
     testImplementation(JvmTestDeps.mockitoKotlin) {

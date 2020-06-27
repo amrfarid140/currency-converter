@@ -1,7 +1,7 @@
 package me.amryousef.converter.domain
 
-import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
 
 interface CurrencyRepository {
-    fun observeCurrencyRates(): Observable<List<CurrencyRate>>
+    fun observeCurrencyRates(): Flow<List<CurrencyRate>>
 }

@@ -33,6 +33,7 @@ dependencies {
     implementation(AndroidDeps.viewModel)
     implementation(AndroidDeps.liveData)
     implementation(AndroidDeps.lifecycleCommon)
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation(JvmDeps.javaxInject)
 
     testImplementation(AndroidTestDeps.liveDataHelper)
@@ -41,6 +42,7 @@ dependencies {
         transitive = false
     }
     testImplementation(JvmTestDeps.mockitoInline)
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
     testImplementation(JvmTestDeps.kotlinTest)
 
     androidTestImplementation(AndroidTestDeps.androidJunit)

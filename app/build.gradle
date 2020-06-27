@@ -36,12 +36,10 @@ dependencies {
     kapt(AndroidDeps.daggerAndroidProcessor)
 
     implementation(AndroidDeps.retrofit)
-    implementation(AndroidDeps.retrofitRxJavaAdapter)
     implementation(AndroidDeps.retrofitGsonConverter)
     implementation(AndroidDeps.retrofitLogger)
-    implementation(AndroidDeps.rxAndroid)
-    implementation(AndroidDeps.rxKotlin)
     implementation(AndroidDeps.sqlDelight)
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7'
 
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)

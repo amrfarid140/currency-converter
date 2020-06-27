@@ -2,10 +2,9 @@ package me.amryousef.converter.data
 
 import com.google.gson.Gson
 import me.amryousef.converter.data.remote.RemoteCurrencyRepositoryMapper
+import me.amryousef.converter.domain.CurrencyMetadata
 import me.amryousef.converter.domain.CurrencyRate
 import org.junit.Test
-import java.lang.IllegalStateException
-import java.util.Currency
 import kotlin.test.assertEquals
 
 class RemoteCurrencyRepositoryMapperTest {
@@ -20,8 +19,12 @@ class RemoteCurrencyRepositoryMapperTest {
                 "rates" to mapOf("USD" to 22.2),
                 "base" to "EUR"
             )
+        val validCountries = mapOf(
+            "EUR" to "EU",
+            "USD" to "USA"
+        )
         // When
-        val result = mapper.map(validApiResponse)
+        val result = mapper.map(validApiResponse, validCountries)
 
         // Then
         assertEquals(
@@ -31,7 +34,10 @@ class RemoteCurrencyRepositoryMapperTest {
 
         assertEquals(
             expected = CurrencyRate(
-                currency = Currency.getInstance("EUR"),
+                currency = CurrencyMetadata(
+                    currencyCode = "EUR",
+                    flagUrl = "EU"
+                ),
                 rate = 1.0,
                 isBase = true
             ),
@@ -39,7 +45,10 @@ class RemoteCurrencyRepositoryMapperTest {
         )
         assertEquals(
             expected = CurrencyRate(
-                currency = Currency.getInstance("USD"),
+                currency = CurrencyMetadata(
+                    currencyCode = "USD",
+                    flagUrl = "USA"
+                ),
                 rate = 22.2
             ),
             actual = result[1]
@@ -48,10 +57,6 @@ class RemoteCurrencyRepositoryMapperTest {
 
     @Test(expected = IllegalStateException::class)
     fun givenApiDataNotContainRatesKey_WhenMap_ThenIllegalStateExceptionIsThrown() {
-        // Given
-        val invalidData = mapOf<String,String>()
-
-        // When
-        mapper.map(invalidData)
+        mapper.map(emptyMap(), emptyMap())
     }
 }

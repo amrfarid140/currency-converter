@@ -24,11 +24,14 @@ object Versions {
     const val gson = "2.8.6"
     const val mockitoKotlin = "2.2.0"
     const val dexOpenerVersion = "2.0.4"
+
+    const val sqlDelightVersion = "1.4.0"
 }
 
 object BuildDeps {
     const val AGP = "com.android.tools.build:gradle:4.0.0"
     const val KGP = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+    const val sqlDelight = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelightVersion}"
 }
 
 object AndroidDeps {
@@ -50,6 +53,7 @@ object AndroidDeps {
         "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val materialComponents =
         "com.google.android.material:material:${Versions.materialComponents}"
+    const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelightVersion}"
 }
 
 object AndroidTestDeps {
@@ -70,6 +74,8 @@ object JvmDeps{
     const val dagger = "com.google.dagger:dagger-android:${Versions.daggerAndroid}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.daggerAndroid}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
+    const val sqlDelightRxJava =
+        "com.squareup.sqldelight:rxjava2-extensions:${Versions.sqlDelightVersion}"
 }
 
 object JvmTestDeps {
@@ -77,4 +83,5 @@ object JvmTestDeps {
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val mockitoInline = "org.mockito:mockito-inline:${Versions.mockitoAndroid}"
+    const val sqlDelight = "com.squareup.sqldelight:sqlite-driver:1.2.2"
 }

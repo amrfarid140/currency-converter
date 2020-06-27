@@ -41,7 +41,7 @@ dependencies {
     implementation(AndroidDeps.retrofitLogger)
     implementation(AndroidDeps.rxAndroid)
     implementation(AndroidDeps.rxKotlin)
-    implementation "com.squareup.sqldelight:android-driver:1.4.0"
+    implementation(AndroidDeps.sqlDelight)
 
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)

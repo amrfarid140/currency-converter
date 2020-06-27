@@ -1,21 +1,14 @@
 package me.amryousef.converter.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.doNothing
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.Currency
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -52,8 +45,26 @@ class CurrencyRatesViewModelTest {
     @Test
     fun givenUseCaseSuccess_WhenViewModelLoads_ThenStateIsSuccess() {
         val viewModel = viewModel()
-        callbackCaptor.lastValue.invoke(UseCaseResult.Success(emptyList()))
+        callbackCaptor.lastValue.invoke(
+            UseCaseResult.Success(
+                listOf(
+                    CurrencyData(
+                        currency = Currency.getInstance("EUR"),
+                        rate = 22.2,
+                        isBase = false,
+                        countryFlagUrl = ""
+                    )
+                )
+            )
+        )
         assertTrue(viewModel.state.value is ViewState.Ready)
+    }
+
+    @Test
+    fun givenUseCaseSuccessWithEmptyData_WhenViewModelLoads_ThenStateIsLoading() {
+        val viewModel = viewModel()
+        callbackCaptor.lastValue.invoke(UseCaseResult.Success(emptyList()))
+        assertTrue(viewModel.state.value is ViewState.Loading)
     }
 
     @Test

@@ -42,6 +42,7 @@ dependencies {
 
 
     testImplementation(JvmTestDeps.junit)
+    testImplementation 'com.squareup.sqldelight:sqlite-driver:1.2.2'
     testImplementation(JvmTestDeps.kotlinTest)
     testImplementation(JvmTestDeps.mockitoInline)
     testImplementation(JvmTestDeps.mockitoKotlin) {

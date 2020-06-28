@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package me.amryousef.converter.data
 
 import kotlinx.coroutines.CoroutineScope

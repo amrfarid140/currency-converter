@@ -1,10 +1,10 @@
 package me.amryousef.converter.data.remote
 
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import me.amryousef.converter.domain.CountryRepository
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
@@ -19,14 +19,41 @@ class RemoteCurrencyRepository @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : CurrencyRepository {
 
-    override fun observeCurrencyRates() = flow<List<CurrencyRate>> {
-        repeated(countryRepository.getCountryFlagUrl())
+    private fun x(): Flow<List<CurrencyRate>> = flow<List<CurrencyRate>> {
+        repeated()
     }.flowOn(schedulerProvider.io())
 
-    private suspend fun FlowCollector<List<CurrencyRate>>.repeated(flags: Map<String, String>) {
+    private fun y(): Flow<List<CurrencyRate>> = channelFlow {
+        try {
+            repeated()
+        } catch (e: CancellationException) {
+            this.close(cause = e)
+        }
+    }
+
+    override fun observeCurrencyRates() = y()
+
+    private suspend fun FlowCollector<List<CurrencyRate>>.repeated() {
+        val flags = countryRepository.getCountryFlagUrl()
         val latestRates = apiService.getLatestRates()
         emit(mapper.map(latestRates, flags))
-        delay(TimeUnit.SECONDS.toMillis(5))
-        repeated(flags)
+        repeated()
+    }
+
+    private suspend fun ProducerScope<List<CurrencyRate>>.repeated() {
+        try {
+            val flags = countryRepository.getCountryFlagUrl()
+            val latestRates = apiService.getLatestRates()
+            if (!isClosedForSend) {
+                offer(mapper.map(latestRates, flags))
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
+        } finally {
+            delay(TimeUnit.SECONDS.toMillis(5))
+            repeated()
+        }
     }
 }

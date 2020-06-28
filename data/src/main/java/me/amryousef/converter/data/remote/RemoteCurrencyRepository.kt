@@ -4,7 +4,8 @@ package me.amryousef.converter.data.remote
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import me.amryousef.converter.domain.CountryRepository
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
@@ -19,25 +20,12 @@ class RemoteCurrencyRepository @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : CurrencyRepository {
 
-    private fun x(): Flow<List<CurrencyRate>> = flow<List<CurrencyRate>> {
-        repeated()
-    }.flowOn(schedulerProvider.io())
-
-    private fun y(): Flow<List<CurrencyRate>> = channelFlow {
+    override fun observeCurrencyRates(): Flow<List<CurrencyRate>> = channelFlow {
         try {
             repeated()
         } catch (e: CancellationException) {
             this.close(cause = e)
         }
-    }
-
-    override fun observeCurrencyRates() = y()
-
-    private suspend fun FlowCollector<List<CurrencyRate>>.repeated() {
-        val flags = countryRepository.getCountryFlagUrl()
-        val latestRates = apiService.getLatestRates()
-        emit(mapper.map(latestRates, flags))
-        repeated()
     }
 
     private suspend fun ProducerScope<List<CurrencyRate>>.repeated() {

@@ -34,7 +34,7 @@ class CurrencyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_currency)
         retryButton.setOnClickListener {
-            viewModel.onRetryClicked()
+            viewModel.startFetchingData()
         }
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = listAdapter
@@ -43,10 +43,7 @@ class CurrencyActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-    }
-
-    override fun onPause() {
-        super.onPause()
+        viewModel.startFetchingData()
     }
 
     private fun handleState(state: ViewState) = when (state) {
@@ -88,5 +85,10 @@ class CurrencyActivity : AppCompatActivity() {
             textWatcher = valueTextWatcher,
             isFocused = index == 0 && valueTextWatcher.currencyCode == item.currencyCode
         )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.pauseFetchingData()
     }
 }

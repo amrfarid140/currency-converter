@@ -72,9 +72,13 @@ class CurrencyRatesViewModel @Inject constructor(
         }
     }
 
-    fun onRetryClicked() {
+    fun startFetchingData() {
         fetchDataJob?.cancel()
         observeUseCase()
+    }
+
+    fun pauseFetchingData() {
+        fetchDataJob?.cancel()
     }
 
     fun onRowValueChanged(currencyCode: String, newValueText: String) {

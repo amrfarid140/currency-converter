@@ -72,6 +72,8 @@ object JvmDeps{
     const val dagger = "com.google.dagger:dagger-android:${Versions.daggerAndroid}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.daggerAndroid}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
+    const val sqlDelightRxJava =
+        "com.squareup.sqldelight:rxjava2-extensions:${Versions.sqlDelightVersion}"
 }
 
 object JvmTestDeps {

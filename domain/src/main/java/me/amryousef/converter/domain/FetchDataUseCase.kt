@@ -10,9 +10,9 @@ import javax.inject.Inject
 class FetchDataUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val schedulerProvider: SchedulerProvider
-) : UseCase<Nothing, List<CurrencyData>> {
+) : NoArgUseCase<List<CurrencyData>> {
 
-    override fun execute(input: Nothing?): Flow<UseCaseResult<List<CurrencyData>>> =
+    override fun execute(): Flow<UseCaseResult<List<CurrencyData>>> =
         currencyRepository
             .observeCurrencyRates()
             .map { rates ->

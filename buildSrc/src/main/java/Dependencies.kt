@@ -58,7 +58,7 @@ object AndroidDeps {
 object AndroidTestDeps {
     const val androidJunit = "androidx.test.ext:junit:${Versions.androidJunit}"
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
-    const val liveDataHelper = "androidx.arch.core:core-testing:${Versions.lifecycleVersion}"
+    const val liveDataHelper = "androidx.arch.core:core-testing:2.1.0"
     const val androidXtestRunner = "androidx.test:runner:${Versions.androidXTest}"
     const val androidXtestRules= "androidx.test:rules:${Versions.androidXTest}"
     const val dexOpener = "com.github.tmurakami:dexopener:${Versions.dexOpenerVersion}"

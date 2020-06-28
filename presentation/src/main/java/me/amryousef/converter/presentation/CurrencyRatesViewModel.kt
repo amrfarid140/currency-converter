@@ -1,27 +1,41 @@
 package me.amryousef.converter.presentation
 
-import androidx.lifecycle.*
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
 import javax.inject.Inject
 
 class CurrencyRatesViewModel @Inject constructor(
-    fetchDataUseCase: FetchDataUseCase
+    private val fetchDataUseCase: FetchDataUseCase
 ) : ViewModel() {
 
+    init {
+        observeUseCase()
+    }
+
+    private var fetchDataJob: Job? = null
     private val _state = MutableLiveData<ViewState>().apply {
         value = ViewState.Loading
     }
-    val state: LiveData<ViewState> =
-        fetchDataUseCase.execute(null)
-            .map {
-                it.reduce()
-            }.onStart { emit(ViewState.Loading) }.asLiveData(viewModelScope.coroutineContext)
+    val state: LiveData<ViewState> = _state
 
     private val originalRates = mutableListOf<ViewStateItem>()
+
+    private fun observeUseCase() {
+        fetchDataJob = viewModelScope.launch {
+            fetchDataUseCase.execute()
+                .collect {
+                    _state.value = it.reduce()
+                }
+        }
+    }
 
     private fun UseCaseResult<List<CurrencyData>>.reduce() =
         when (this) {
@@ -40,15 +54,15 @@ class CurrencyRatesViewModel @Inject constructor(
         }
 
     private fun UseCaseResult<List<CurrencyData>>.setReadyState(items: List<ViewStateItem>) =
-        (_state.value as? ViewState.Ready)?.let { currentState ->
+        (state.value as? ViewState.Ready)?.let { currentState ->
             val focusedItem = currentState.items.first()
-            onRowValueChanged(focusedItem.currencyCode, focusedItem.value)
+            computeStateWithCurrencyAndValue(focusedItem.currencyCode, focusedItem.value)
         } ?: run {
             ViewState.Ready(items)
         }
 
-    fun onRowFocused(currencyCode: String) =
-        computeStateFromReady {
+    fun onRowFocused(currencyCode: String) {
+        _state.value = computeStateFromReady {
             ViewState.Ready(
                 mutableSetOf<ViewStateItem>().apply {
                     items.find { it.currencyCode == currencyCode }?.let { add(it) }
@@ -56,8 +70,18 @@ class CurrencyRatesViewModel @Inject constructor(
                 }.toList()
             )
         }
+    }
 
-    fun onRowValueChanged(currencyCode: String, newValueText: String) =
+    fun onRetryClicked() {
+        fetchDataJob?.cancel()
+        observeUseCase()
+    }
+
+    fun onRowValueChanged(currencyCode: String, newValueText: String) {
+        _state.value = computeStateWithCurrencyAndValue(currencyCode, newValueText)
+    }
+
+    private fun computeStateWithCurrencyAndValue(currencyCode: String, newValueText: String) =
         newValueText.toDoubleOrNull()?.let { newValue ->
             computeStateFromReady {
                 val currentStateItems = items.filter { it.currencyCode != currencyCode }
@@ -91,9 +115,9 @@ class CurrencyRatesViewModel @Inject constructor(
         }
 
     private fun computeStateFromReady(block: ViewState.Ready.() -> ViewState.Ready) =
-        (_state.value as? ViewState.Ready)?.let { currentState ->
+        (state.value as? ViewState.Ready)?.let { currentState ->
             currentState.block()
-        } ?: _state.value
+        } ?: state.value
 
     private fun List<CurrencyData>.toStateItem() = map { rate ->
         ViewStateItem(
@@ -119,4 +143,9 @@ class CurrencyRatesViewModel @Inject constructor(
 
     private fun Double.formatValue() =
         String.format("%.2f", this)
+
+    override fun onCleared() {
+        super.onCleared()
+        fetchDataJob?.cancel()
+    }
 }

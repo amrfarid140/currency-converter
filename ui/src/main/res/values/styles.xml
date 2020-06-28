@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -14,6 +14,11 @@
     </style>
 
     <style name="Widget.MaterialComponents.TextInputLayout.FilledBox.Transparent">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.TextInputLayout</item>
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="ThemeOverlay.TextInputLayout" parent="">
+        <item name="colorPrimary">@color/colorAccent</item>
     </style>
 </resources>

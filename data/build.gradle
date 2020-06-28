@@ -34,12 +34,12 @@ dependencies {
     implementation(AndroidDeps.coreKtx)
 
     implementation(AndroidDeps.retrofit)
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
+    implementation(JvmDeps.coroutinesCore)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.gson)
-    implementation "com.squareup.sqldelight:coroutines-extensions-jvm:1.4.0"
+    implementation(JvmDeps.sqlDelightCoroutines)
 
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.7'
+    testImplementation(JvmTestDeps.coroutinesTest)
     testImplementation(JvmTestDeps.junit)
     testImplementation(JvmTestDeps.sqlDelight)
     testImplementation(JvmTestDeps.kotlinTest)

@@ -53,6 +53,15 @@ class CurrencyRatesViewModel @Inject constructor(
             is UseCaseResult.Error -> ViewState.Error
         }
 
+    private fun List<CurrencyData>.toStateItem() = map { rate ->
+        ViewStateItem(
+            rate.countryFlagUrl,
+            rate.currency.currencyCode,
+            rate.rate.formatValue(),
+            rate.isBase
+        )
+    }
+
     private fun UseCaseResult<List<CurrencyData>>.setReadyState(items: List<ViewStateItem>) =
         (state.value as? ViewState.Ready)?.let { currentState ->
             val focusedItem = currentState.items.first()
@@ -60,30 +69,6 @@ class CurrencyRatesViewModel @Inject constructor(
         } ?: run {
             ViewState.Ready(items)
         }
-
-    fun onRowFocused(currencyCode: String) {
-        _state.value = computeStateFromReady {
-            ViewState.Ready(
-                mutableSetOf<ViewStateItem>().apply {
-                    items.find { it.currencyCode == currencyCode }?.let { add(it) }
-                    addAll(items)
-                }.toList()
-            )
-        }
-    }
-
-    fun startFetchingData() {
-        fetchDataJob?.cancel()
-        observeUseCase()
-    }
-
-    fun pauseFetchingData() {
-        fetchDataJob?.cancel()
-    }
-
-    fun onRowValueChanged(currencyCode: String, newValueText: String) {
-        _state.value = computeStateWithCurrencyAndValue(currencyCode, newValueText)
-    }
 
     private fun computeStateWithCurrencyAndValue(currencyCode: String, newValueText: String) =
         newValueText.toDoubleOrNull()?.let { newValue ->
@@ -118,20 +103,6 @@ class CurrencyRatesViewModel @Inject constructor(
             updateRates(currentStateItems, newBaseValue)
         }
 
-    private fun computeStateFromReady(block: ViewState.Ready.() -> ViewState.Ready) =
-        (state.value as? ViewState.Ready)?.let { currentState ->
-            currentState.block()
-        } ?: state.value
-
-    private fun List<CurrencyData>.toStateItem() = map { rate ->
-        ViewStateItem(
-            rate.countryFlagUrl,
-            rate.currency.currencyCode,
-            rate.rate.formatValue(),
-            rate.isBase
-        )
-    }
-
     private fun updateRates(currentStateItems: List<ViewStateItem>, newValue: Double) =
         currentStateItems.map { currentValue ->
             val originalRate = originalRates.find { it.currencyCode == currentValue.currencyCode }
@@ -147,6 +118,35 @@ class CurrencyRatesViewModel @Inject constructor(
 
     private fun Double.formatValue() =
         String.format("%.2f", this)
+
+    fun onRowFocused(currencyCode: String) {
+        _state.value = computeStateFromReady {
+            ViewState.Ready(
+                mutableSetOf<ViewStateItem>().apply {
+                    items.find { it.currencyCode == currencyCode }?.let { add(it) }
+                    addAll(items)
+                }.toList()
+            )
+        }
+    }
+
+    private fun computeStateFromReady(block: ViewState.Ready.() -> ViewState.Ready) =
+        (state.value as? ViewState.Ready)?.let { currentState ->
+            currentState.block()
+        } ?: state.value
+
+    fun startFetchingData() {
+        fetchDataJob?.cancel()
+        observeUseCase()
+    }
+
+    fun pauseFetchingData() {
+        fetchDataJob?.cancel()
+    }
+
+    fun onRowValueChanged(currencyCode: String, newValueText: String) {
+        _state.value = computeStateWithCurrencyAndValue(currencyCode, newValueText)
+    }
 
     override fun onCleared() {
         super.onCleared()

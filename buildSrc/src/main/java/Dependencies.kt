@@ -11,14 +11,12 @@ object Versions {
     const val picasso = "2.71828"
 
     const val kotlin = "1.3.72"
+    const val coroutines = "1.3.7"
 
     const val junit = "4.13"
     const val androidJunit = "1.1.0"
     const val espressoCore = "3.1.1"
 
-    const val rxJava = "2.2.19"
-    const val rxAndroid = "2.1.1"
-    const val rxKotlin = "2.4.0"
 
     const val daggerAndroid = "2.28.1"
     const val gson = "2.8.6"
@@ -53,6 +51,10 @@ object AndroidDeps {
     const val materialComponents =
         "com.google.android.material:material:${Versions.materialComponents}"
     const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelightVersion}"
+    const val coroutinesAndroid =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+    const val lifecycleExtensions =
+        "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycleVersion}"
 }
 
 object AndroidTestDeps {
@@ -64,16 +66,19 @@ object AndroidTestDeps {
     const val dexOpener = "com.github.tmurakami:dexopener:${Versions.dexOpenerVersion}"
     const val mockitoAndroid = "org.mockito:mockito-android:${Versions.mockitoAndroid}"
     const val mockitoCore = "org.mockito:mockito-core:${Versions.mockitoAndroid}"
+    const val mockk = "io.mockk:mockk-android:1.9.3.kotlin12"
 }
 
-object JvmDeps{
+object JvmDeps {
     const val kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
     const val javaxInject = "javax.inject:javax.inject:1"
     const val dagger = "com.google.dagger:dagger-android:${Versions.daggerAndroid}"
     const val daggerCompiler = "com.google.dagger:dagger-compiler:${Versions.daggerAndroid}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
-    const val sqlDelightRxJava =
-        "com.squareup.sqldelight:rxjava2-extensions:${Versions.sqlDelightVersion}"
+    const val sqlDelightCoroutines =
+        "com.squareup.sqldelight:coroutines-extensions-jvm:${Versions.sqlDelightVersion}"
+    const val coroutinesCore =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 }
 
 object JvmTestDeps {
@@ -82,4 +87,6 @@ object JvmTestDeps {
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val mockitoInline = "org.mockito:mockito-inline:${Versions.mockitoAndroid}"
     const val sqlDelight = "com.squareup.sqldelight:sqlite-driver:1.2.2"
+    const val coroutinesTest =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
 }

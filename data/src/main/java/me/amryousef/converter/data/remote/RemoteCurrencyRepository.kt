@@ -1,5 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
 package me.amryousef.converter.data.remote
-
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ProducerScope
@@ -9,15 +9,13 @@ import kotlinx.coroutines.flow.channelFlow
 import me.amryousef.converter.domain.CountryRepository
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
-import me.amryousef.converter.domain.SchedulerProvider
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class RemoteCurrencyRepository @Inject constructor(
     private val apiService: CurrencyRatesService,
     private val mapper: RemoteCurrencyRepositoryMapper,
-    private val countryRepository: CountryRepository,
-    private val schedulerProvider: SchedulerProvider
+    private val countryRepository: CountryRepository
 ) : CurrencyRepository {
 
     override fun observeCurrencyRates(): Flow<List<CurrencyRate>> = channelFlow {

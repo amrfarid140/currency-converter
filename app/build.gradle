@@ -43,6 +43,7 @@ dependencies {
     implementation(JvmDeps.kotlinStdlib)
     implementation(AndroidDeps.appCompat)
     implementation(AndroidDeps.coreKtx)
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation(JvmTestDeps.junit)
     androidTestImplementation(AndroidTestDeps.androidJunit)

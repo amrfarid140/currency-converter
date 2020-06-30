@@ -36,6 +36,7 @@ dependencies {
     implementation(AndroidDeps.lifecycleExtensions)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.coroutinesCore)
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation(AndroidTestDeps.liveDataHelper)
     testImplementation(JvmTestDeps.junit)

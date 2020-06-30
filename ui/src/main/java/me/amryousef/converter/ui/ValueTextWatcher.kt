@@ -2,9 +2,9 @@ package me.amryousef.converter.ui
 
 import android.text.Editable
 import android.text.TextWatcher
-import me.amryousef.converter.presentation.CurrencyRatesViewModel
+import me.amryousef.converter.presentation.CurrencyRatesPresenter
 
-class ValueTextWatcher(private val viewModel: CurrencyRatesViewModel) : TextWatcher {
+class ValueTextWatcher(private val presenter: CurrencyRatesPresenter) : TextWatcher {
     var currencyCode: String? = null
         private set
     var oldText: String = ""
@@ -27,7 +27,7 @@ class ValueTextWatcher(private val viewModel: CurrencyRatesViewModel) : TextWatc
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         currencyCode?.let { currency ->
             s?.toString()?.let { value ->
-                viewModel.onRowValueChanged(currency, value)
+                presenter.onRowValueChanged(currency, value)
             }
         }
     }

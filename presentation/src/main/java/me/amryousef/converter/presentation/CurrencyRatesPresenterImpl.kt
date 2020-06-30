@@ -1,38 +1,80 @@
 package me.amryousef.converter.presentation
 
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.Observer
+import androidx.lifecycle.OnLifecycleEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
+import timber.log.Timber
+import java.lang.ref.WeakReference
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class CurrencyRatesViewModel @Inject constructor(
+class CurrencyRatesPresenterImpl @Inject constructor(
     private val fetchDataUseCase: FetchDataUseCase
-) : ViewModel() {
-
-    init {
-        observeUseCase()
-    }
+) : CurrencyRatesPresenter, CoroutineScope, Observer<ViewState> {
 
     private var fetchDataJob: Job? = null
-    private val _state = MutableLiveData<ViewState>().apply {
-        value = ViewState.Loading
-    }
-    val state: LiveData<ViewState> = _state
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main.immediate
 
     private val originalRates = mutableListOf<ViewStateItem>()
 
+    private lateinit var weakView: WeakReference<CurrencyRatesView>
+
+    private val state = MutableLiveData<ViewState>()
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    fun onResume() {
+        Timber.i("Starting data fetch")
+        state.observeForever(this)
+        observeUseCase()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onPause() {
+        Timber.i("Stopping data fetch")
+        state.removeObserver(this)
+        fetchDataJob?.cancel()
+    }
+
+    override fun bindView(view: CurrencyRatesView) {
+        weakView = WeakReference(view)
+    }
+
+    override fun onRowFocused(currencyCode: String) {
+        state.value = computeStateFromReady {
+            ViewState.Ready(
+                mutableSetOf<ViewStateItem>().apply {
+                    items.find { it.currencyCode == currencyCode }?.let { add(it) }
+                    addAll(items)
+                }.toList()
+            )
+        }
+    }
+
+    override fun onRowValueChanged(currencyCode: String, newValueText: String) {
+        state.value = computeStateWithCurrencyAndValue(currencyCode, newValueText)
+    }
+
+    override fun retryFetchingData() {
+        fetchDataJob?.cancel()
+        observeUseCase()
+    }
+
     private fun observeUseCase() {
-        fetchDataJob = viewModelScope.launch {
+        fetchDataJob = launch {
             fetchDataUseCase.execute()
                 .collect {
-                    _state.value = it.reduce()
+                    state.value = it.reduce()
                 }
         }
     }
@@ -92,13 +134,16 @@ class CurrencyRatesViewModel @Inject constructor(
     private fun ViewStateItem?.updateOriginalRates(
         currencyCode: String,
         newValue: Double,
-        currentStateItems: List<ViewStateItem>) =
+        currentStateItems: List<ViewStateItem>
+    ) =
         if (this?.isBase == true) {
             updateRates(currentStateItems, newValue)
         } else {
             val originalRate = originalRates.find { it.currencyCode == currencyCode }
             val newBaseValue =
-                originalRate?.let { safeRate -> safeRate.value.toDoubleOrNull()?.let { newValue / it } }
+                originalRate?.let { safeRate ->
+                    safeRate.value.toDoubleOrNull()?.let { newValue / it }
+                }
                     ?: 0.0
             updateRates(currentStateItems, newBaseValue)
         }
@@ -119,37 +164,12 @@ class CurrencyRatesViewModel @Inject constructor(
     private fun Double.formatValue() =
         String.format("%.2f", this)
 
-    fun onRowFocused(currencyCode: String) {
-        _state.value = computeStateFromReady {
-            ViewState.Ready(
-                mutableSetOf<ViewStateItem>().apply {
-                    items.find { it.currencyCode == currencyCode }?.let { add(it) }
-                    addAll(items)
-                }.toList()
-            )
-        }
-    }
-
     private fun computeStateFromReady(block: ViewState.Ready.() -> ViewState.Ready) =
         (state.value as? ViewState.Ready)?.let { currentState ->
             currentState.block()
         } ?: state.value
 
-    fun startFetchingData() {
-        fetchDataJob?.cancel()
-        observeUseCase()
-    }
-
-    fun pauseFetchingData() {
-        fetchDataJob?.cancel()
-    }
-
-    fun onRowValueChanged(currencyCode: String, newValueText: String) {
-        _state.value = computeStateWithCurrencyAndValue(currencyCode, newValueText)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        fetchDataJob?.cancel()
+    override fun onChanged(viewState: ViewState?) {
+        viewState?.let { weakView.get()?.handleState(it) }
     }
 }

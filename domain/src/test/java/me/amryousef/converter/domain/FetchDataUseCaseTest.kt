@@ -1,8 +1,11 @@
 package me.amryousef.converter.domain
 
 import com.nhaarman.mockitokotlin2.*
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -11,7 +14,7 @@ private typealias Callback<T> = (UseCaseResult<T>) -> Unit
 
 class FetchDataUseCaseTest {
 
-    private val testScheduler = Schedulers.trampoline()
+    private val testScheduler = TestCoroutineDispatcher()
     private val mockCurrencyRepository = mock<CurrencyRepository>()
     private val mockSchedulerProvider = mock<SchedulerProvider> {
         on { io() } doReturn testScheduler
@@ -32,31 +35,28 @@ class FetchDataUseCaseTest {
     }
 
     @Test
-    fun givenCurrencyRepositoryOperationsSuccess_WhenExecute_ThenResultIsSuccess() {
-        val mockData = givenMockCurrencyRates()
-        given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
-            Observable.just(mockData)
-        )
+    fun givenCurrencyRepositoryOperationsSuccess_WhenExecute_ThenResultIsSuccess() =
+        runBlockingTest {
+            val mockData = givenMockCurrencyRates()
+            given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
+                flowOf(mockData)
+            )
 
-        useCase.execute(onResult = mockCallback)
-
-        assertTrue(callbackResultCaptor.lastValue is UseCaseResult.Success)
-    }
+            assertTrue(useCase.execute().toList().first() is UseCaseResult.Success)
+        }
 
     @Test
-    fun givenCurrencyRepositoryFailsToFetchData_WhenExecute_ThenResultIsError() {
+    fun givenCurrencyRepositoryFailsToFetchData_WhenExecute_ThenResultIsError() = runBlockingTest {
         given(mockCurrencyRepository.observeCurrencyRates()).willReturn(
-            Observable.error(Throwable())
+            flow { throw Throwable() }
         )
 
-        useCase.execute(onResult = mockCallback)
-
-        assertTrue(callbackResultCaptor.lastValue is UseCaseResult.Error)
+        assertTrue(useCase.execute().toList().first() is UseCaseResult.Error)
     }
 
     private fun givenMockCurrencyRates() = listOf(
         CurrencyRate(
-            currency = CurrencyMetadata("EUR","test"),
+            currency = CurrencyMetadata("EUR", "test"),
             isBase = true,
             rate = 22.2
         )

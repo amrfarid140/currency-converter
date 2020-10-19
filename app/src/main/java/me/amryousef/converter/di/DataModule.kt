@@ -19,7 +19,6 @@ import me.amryousef.converter.domain.WritableCurrencyRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
@@ -48,7 +47,6 @@ class DataModule {
             .client(OkHttpClient.Builder().addInterceptor(HttpLoggingInterceptor()).build())
             .baseUrl("https://us-central1-testfirestore-fd7e2.cloudfunctions.net/")
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
     @Singleton

@@ -1,8 +1,10 @@
 package me.amryousef.converter.data.local
 
-import com.squareup.sqldelight.runtime.rx.asObservable
-import io.reactivex.Completable
-import io.reactivex.Observable
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import me.amryousef.converter.data.Database
 import me.amryousef.converter.domain.CurrencyMetadata
 import me.amryousef.converter.domain.CurrencyRate
@@ -15,25 +17,26 @@ class SqlWritableCurrencyRepository @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : WritableCurrencyRepository {
 
-    override fun addCurrencyRates(rates: List<CurrencyRate>) = Completable.fromAction {
-        database.transaction {
-            rates.forEach {
-                database.currencyQueries.insert(
-                    code = it.currency.currencyCode,
-                    flag_url = it.currency.flagUrl,
-                    is_base = it.isBase
-                )
-                database.currency_RateQueries.insertCurrencyRate(
-                    currency_code = it.currency.currencyCode,
-                    rate = it.rate.toFloat()
+    override suspend fun addCurrencyRates(rates: List<CurrencyRate>) =
+        withContext(schedulerProvider.io()) {
+            database.transaction {
+                rates.forEach {
+                    database.currencyQueries.insert(
+                        code = it.currency.currencyCode,
+                        flag_url = it.currency.flagUrl,
+                        is_base = it.isBase
+                    )
+                    database.currency_RateQueries.insertCurrencyRate(
+                        currency_code = it.currency.currencyCode,
+                        rate = it.rate.toFloat()
                 )
             }
         }
-    }.subscribeOn(schedulerProvider.io())
+        }
 
-    override fun observeCurrencyRates(): Observable<List<CurrencyRate>> {
+    override fun observeCurrencyRates(): Flow<List<CurrencyRate>> {
         return database.currencyQueries.selectAllWithLatestRate()
-            .asObservable(scheduler = schedulerProvider.io())
+            .asFlow()
             .map {
                 it.executeAsList().map { row ->
                     CurrencyRate(
@@ -45,6 +48,6 @@ class SqlWritableCurrencyRepository @Inject constructor(
                         rate = row.rate.toDouble()
                     )
                 }
-            }
+            }.flowOn(schedulerProvider.io())
     }
 }

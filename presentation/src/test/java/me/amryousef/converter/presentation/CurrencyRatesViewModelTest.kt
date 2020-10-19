@@ -1,7 +1,12 @@
 package me.amryousef.converter.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import me.amryousef.converter.domain.CurrencyData
 import me.amryousef.converter.domain.FetchDataUseCase
 import me.amryousef.converter.domain.UseCaseResult
@@ -18,34 +23,30 @@ class CurrencyRatesViewModelTest {
     @get:Rule
     val liveDataRule = InstantTaskExecutorRule()
 
-    private val callbackCaptor = argumentCaptor<(UseCaseResult<List<CurrencyData>>) -> Unit>()
+    @get:Rule
+    val dispatcherRule = TestCoroutineDispatcherRule()
+
     private val mockFetchDataUseCase = mock<FetchDataUseCase>()
+    private lateinit var useCaseResultChannel: Channel<UseCaseResult<List<CurrencyData>>>
+    private lateinit var subject: CurrencyRatesViewModel
 
     @Before
     fun setup() {
-        doNothing().whenever(mockFetchDataUseCase)
-            .execute(eq(null), callbackCaptor.capture())
+        useCaseResultChannel = Channel()
+        whenever(mockFetchDataUseCase.execute())
+            .thenReturn(useCaseResultChannel.receiveAsFlow())
+        subject = CurrencyRatesViewModel(mockFetchDataUseCase)
     }
 
-    @Test
-    fun whenViewPaused_ThenUseCaseIsCancelled() {
-        val viewModel = viewModel()
-        viewModel.onViewPaused()
-        verify(mockFetchDataUseCase).cancel()
-    }
-    
     @Test
     fun givenUseCaseFails_WhenViewModelLoads_ThenStateIsError() {
-        val viewModel = viewModel()
-        callbackCaptor.lastValue.invoke(UseCaseResult.Error(Throwable()))
-
-        assertTrue(viewModel.state.value is ViewState.Error)
+        useCaseResultChannel.offer(UseCaseResult.Error(Throwable()))
+        assertTrue(subject.state.value is ViewState.Error)
     }
 
     @Test
     fun givenUseCaseSuccess_WhenViewModelLoads_ThenStateIsSuccess() {
-        val viewModel = viewModel()
-        callbackCaptor.lastValue.invoke(
+        useCaseResultChannel.offer(
             UseCaseResult.Success(
                 listOf(
                     CurrencyData(
@@ -57,35 +58,29 @@ class CurrencyRatesViewModelTest {
                 )
             )
         )
-        assertTrue(viewModel.state.value is ViewState.Ready)
+        assertTrue(subject.state.value is ViewState.Ready)
     }
 
     @Test
     fun givenUseCaseSuccessWithEmptyData_WhenViewModelLoads_ThenStateIsLoading() {
-        val viewModel = viewModel()
-        callbackCaptor.lastValue.invoke(UseCaseResult.Success(emptyList()))
-        assertTrue(viewModel.state.value is ViewState.Loading)
+        useCaseResultChannel.offer(UseCaseResult.Success(emptyList()))
+        assertTrue(subject.state.value is ViewState.Loading)
     }
 
     @Test
     fun givenUseCaseErrors_WhenRetryClicked_ThenUseCaseReLoaded() {
-        val viewModel = viewModel()
-        callbackCaptor.lastValue.invoke(UseCaseResult.Error(Throwable()))
-
-        viewModel.onRetryClicked()
-
-        verify(mockFetchDataUseCase).cancel()
-        verify(mockFetchDataUseCase, times(2)).execute(eq(null), any())
+        useCaseResultChannel.offer(UseCaseResult.Error(Throwable()))
+        subject.startFetchingData()
+        verify(mockFetchDataUseCase, times(2)).execute()
     }
 
     @Test
     fun givenStateHasItems_WhenOnRowFocused_ThenFocusedRowIsFirstItem() {
-        val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowFocused("USD")
+        subject.onRowFocused("USD")
 
-        val state = viewModel.state.value
+        val state = subject.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
@@ -96,12 +91,11 @@ class CurrencyRatesViewModelTest {
 
     @Test
     fun givenBaseRowValueChanged_WhenOnRowValueChanged_ThenAllValuesChangedCorrectly() {
-        val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowValueChanged("EUR", "5.0")
+        subject.onRowValueChanged("EUR", "5.0")
 
-        val state = viewModel.state.value
+        val state = subject.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
@@ -116,14 +110,13 @@ class CurrencyRatesViewModelTest {
 
     @Test
     fun givenFocusedRowChanged_WhenUseCaseDataIsUpdated_ThenOrderIsKeptTheSame() {
-        val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowFocused("USD")
+        subject.onRowFocused("USD")
 
         givenUseCaseReturnsData()
 
-        val state = viewModel.state.value
+        val state = subject.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
@@ -134,12 +127,11 @@ class CurrencyRatesViewModelTest {
 
     @Test
     fun givenOtherRowValueChanged_WhenOnRowValueChanged_ThenAllValuesChangedCorrectly() {
-        val viewModel = viewModel()
         givenUseCaseReturnsData()
 
-        viewModel.onRowValueChanged("USD", "5.0")
+        subject.onRowValueChanged("USD", "5.0")
 
-        val state = viewModel.state.value
+        val state = subject.state.value
         assertNotNull(state)
         assertTrue(state is ViewState.Ready)
         assertEquals(
@@ -153,7 +145,7 @@ class CurrencyRatesViewModelTest {
     }
 
     private fun givenUseCaseReturnsData() {
-        callbackCaptor.lastValue.invoke(
+        useCaseResultChannel.offer(
             UseCaseResult.Success(
                 listOf(
                     CurrencyData(
@@ -171,9 +163,4 @@ class CurrencyRatesViewModelTest {
             )
         )
     }
-
-    private fun viewModel() =
-        CurrencyRatesViewModel(mockFetchDataUseCase).apply {
-            onViewStarted()
-        }
 }

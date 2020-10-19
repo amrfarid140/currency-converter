@@ -2,21 +2,24 @@ package me.amryousef.converter.data
 
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.*
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import me.amryousef.converter.domain.CurrencyRate
 import me.amryousef.converter.domain.CurrencyRepository
 import me.amryousef.converter.domain.SchedulerProvider
 import me.amryousef.converter.domain.WritableCurrencyRepository
 import org.junit.Test
 
+@Suppress("EXPERIMENTAL_API_USAGE")
 class CurrencyRepositoryImplTest {
     private val mockLocalRepository =
         mock<WritableCurrencyRepository>()
     private val mockRemoteRepository =
         mock<CurrencyRepository>()
-    private val testScheduler = Schedulers.trampoline()
+    private val testScheduler = TestCoroutineDispatcher()
     private val mockScheduler = mock<SchedulerProvider> {
         on { io() } doReturn testScheduler
         on { main() } doReturn testScheduler
@@ -29,64 +32,65 @@ class CurrencyRepositoryImplTest {
     )
 
     @Test
-    fun givenRemoteRepositoryHasData_WhenObserveCurrencyRates_ThenLocalRepositoryIsUpdated() {
-        // Given
-        val mockCurrencyData = listOf(mock<CurrencyRate>())
-        given(mockRemoteRepository.observeCurrencyRates())
-            .willReturn(Observable.just(mockCurrencyData))
-        given(mockLocalRepository.observeCurrencyRates())
-            .willReturn(Observable.just(emptyList()))
+    fun givenRemoteRepositoryHasData_WhenObserveCurrencyRates_ThenLocalRepositoryIsUpdated() =
+        runBlockingTest {
+            // Given
+            val mockCurrencyData = listOf(mock<CurrencyRate>())
+            given(mockRemoteRepository.observeCurrencyRates())
+                .willReturn(flowOf(mockCurrencyData))
+            given(mockLocalRepository.observeCurrencyRates())
+                .willReturn(flowOf(emptyList()))
 
-        // When
-        repositoryImpl.observeCurrencyRates().test()
+            // When
+            repositoryImpl.observeCurrencyRates().collect()
 
-        // Then
-        verify(mockLocalRepository).addCurrencyRates(mockCurrencyData)
-    }
-
-    @Test
-    fun givenRemoteRepositoryErrors_WhenObserveCurrencyRates_ThenLocalDataIsReturned() {
-        // Given
-        given(mockRemoteRepository.observeCurrencyRates())
-            .willReturn(Observable.error(JsonSyntaxException("Test")))
-        given(mockLocalRepository.observeCurrencyRates())
-            .willReturn(Observable.just(emptyList()))
-
-        // When
-        repositoryImpl.observeCurrencyRates().test()
-
-        // Then
-        verify(mockLocalRepository).observeCurrencyRates()
-    }
+            // Then
+            verify(mockLocalRepository).addCurrencyRates(mockCurrencyData)
+        }
 
     @Test
-    fun givenCurrencyRatesObserved_WhenObserverSubscribed_ThenRemoteDataObserved() {
-        // Given
-        given(mockRemoteRepository.observeCurrencyRates())
-            .willReturn(Observable.just(emptyList()))
-        given(mockLocalRepository.observeCurrencyRates())
-            .willReturn(Observable.just(emptyList()))
-        val observable = repositoryImpl.observeCurrencyRates()
+    fun givenRemoteRepositoryErrors_WhenObserveCurrencyRates_ThenLocalDataIsReturned() =
+        runBlockingTest {
+            // Given
+            given(mockRemoteRepository.observeCurrencyRates())
+                .willReturn(flow { JsonSyntaxException("Error") })
+            given(mockLocalRepository.observeCurrencyRates())
+                .willReturn(flowOf(emptyList()))
 
-        // When
-        observable.test()
+            // When
+            repositoryImpl.observeCurrencyRates().collect()
 
-        //Then
-        verify(mockRemoteRepository).observeCurrencyRates()
-    }
+            // Then
+            verify(mockLocalRepository).observeCurrencyRates()
+        }
 
     @Test
-    fun givenRemoteRepositoryObserved_WhenDataReceived_ThenDataStoredLocally() {
+    fun givenCurrencyRatesObserved_WhenObserverSubscribed_ThenRemoteDataObserved() =
+        runBlockingTest {
+            // Given
+            given(mockRemoteRepository.observeCurrencyRates())
+                .willReturn(flowOf(emptyList()))
+            given(mockLocalRepository.observeCurrencyRates())
+                .willReturn(flowOf(emptyList()))
+
+            // When
+            repositoryImpl.observeCurrencyRates().collect()
+
+            //Then
+            verify(mockRemoteRepository).observeCurrencyRates()
+        }
+
+    @Test
+    fun givenRemoteRepositoryObserved_WhenDataReceived_ThenDataStoredLocally() = runBlockingTest {
         // Given
-        val subject = PublishSubject.create<List<CurrencyRate>>()
         given(mockRemoteRepository.observeCurrencyRates())
-            .willReturn(subject)
+            .willReturn(flowOf(listOf(mock())))
         given(mockLocalRepository.observeCurrencyRates())
-            .willReturn(Observable.just(emptyList()))
-        repositoryImpl.observeCurrencyRates().test()
+            .willReturn(flowOf(emptyList()))
+        repositoryImpl.observeCurrencyRates().collect()
 
         // When
-        subject.onNext(emptyList())
+        testScheduler.advanceUntilIdle()
 
         //Then
         verify(mockLocalRepository).addCurrencyRates(any())

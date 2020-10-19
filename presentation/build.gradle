@@ -33,7 +33,9 @@ dependencies {
     implementation(AndroidDeps.viewModel)
     implementation(AndroidDeps.liveData)
     implementation(AndroidDeps.lifecycleCommon)
+    implementation(AndroidDeps.lifecycleExtensions)
     implementation(JvmDeps.javaxInject)
+    implementation(JvmDeps.coroutinesCore)
 
     testImplementation(AndroidTestDeps.liveDataHelper)
     testImplementation(JvmTestDeps.junit)
@@ -41,6 +43,7 @@ dependencies {
         transitive = false
     }
     testImplementation(JvmTestDeps.mockitoInline)
+    testImplementation(JvmTestDeps.coroutinesTest)
     testImplementation(JvmTestDeps.kotlinTest)
 
     androidTestImplementation(AndroidTestDeps.androidJunit)

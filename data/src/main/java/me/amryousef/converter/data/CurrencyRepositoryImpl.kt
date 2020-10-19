@@ -1,38 +1,47 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package me.amryousef.converter.data
 
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
-import me.amryousef.converter.domain.CurrencyRate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import me.amryousef.converter.domain.CurrencyRepository
 import me.amryousef.converter.domain.SchedulerProvider
 import me.amryousef.converter.domain.WritableCurrencyRepository
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.coroutines.CoroutineContext
 
 class CurrencyRepositoryImpl @Inject constructor(
     @Named("local") private val localRepository: WritableCurrencyRepository,
     @Named("remote") private val remoteRepository: CurrencyRepository,
     private val schedulerProvider: SchedulerProvider
-) : CurrencyRepository {
+) : CurrencyRepository, CoroutineScope {
 
-    private var disposable: Disposable? = null
+    private var job: Job? = null
+    override val coroutineContext: CoroutineContext
+        get() = schedulerProvider.io()
 
-
-    override fun observeCurrencyRates(): Observable<List<CurrencyRate>> =
-        localRepository.observeCurrencyRates()
-            .doOnSubscribe {
-                if (disposable == null) {
-                    disposable = remoteRepository.observeCurrencyRates()
-                        .flatMapCompletable { localRepository.addCurrencyRates(it) }
-                        .onErrorComplete()
-                        .repeatWhen { complete -> complete.delay(5, TimeUnit.SECONDS) }
-                        .subscribeOn(schedulerProvider.io())
-                        .subscribe()
+    private fun startRemote() {
+        job = launch {
+            remoteRepository.observeCurrencyRates()
+                .collect {
+                    localRepository.addCurrencyRates(it)
                 }
-            }.doOnDispose {
-                disposable?.dispose()
-                disposable = null
+        }
+    }
+
+    override fun observeCurrencyRates() =
+        localRepository.observeCurrencyRates()
+            .onStart {
+                startRemote()
+                emit(emptyList())
+            }.onCompletion {
+                job?.cancel()
             }
-            .subscribeOn(schedulerProvider.io())
+            .flowOn(schedulerProvider.main())
 }

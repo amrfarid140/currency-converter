@@ -1,7 +1,7 @@
 apply plugin: "kotlin"
 
 dependencies {
-    implementation(JvmDeps.rxJava)
+    implementation(JvmDeps.coroutinesCore)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.kotlinStdlib)
     testImplementation(JvmTestDeps.junit)
@@ -10,4 +10,5 @@ dependencies {
         transitive = false
     }
     testImplementation(JvmTestDeps.mockitoInline)
+    testImplementation(JvmTestDeps.coroutinesTest)
 }

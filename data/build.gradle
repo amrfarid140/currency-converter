@@ -1,7 +1,6 @@
 apply plugin : "com.android.library"
 apply plugin : "kotlin-android"
 apply plugin : "kotlin-android-extensions"
-apply plugin : "kotlin-kapt"
 apply plugin: 'com.squareup.sqldelight'
 
 android {
@@ -35,12 +34,12 @@ dependencies {
     implementation(AndroidDeps.coreKtx)
 
     implementation(AndroidDeps.retrofit)
-    implementation(AndroidDeps.rxKotlin)
+    implementation(JvmDeps.coroutinesCore)
     implementation(JvmDeps.javaxInject)
     implementation(JvmDeps.gson)
-    implementation(JvmDeps.sqlDelightRxJava)
+    implementation(JvmDeps.sqlDelightCoroutines)
 
-
+    testImplementation(JvmTestDeps.coroutinesTest)
     testImplementation(JvmTestDeps.junit)
     testImplementation(JvmTestDeps.sqlDelight)
     testImplementation(JvmTestDeps.kotlinTest)

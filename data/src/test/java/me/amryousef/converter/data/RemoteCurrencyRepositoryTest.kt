@@ -2,8 +2,12 @@ package me.amryousef.converter.data
 
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.*
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import me.amryousef.converter.data.remote.CurrencyRatesService
 import me.amryousef.converter.data.remote.RemoteCurrencyRepository
 import me.amryousef.converter.data.remote.RemoteCurrencyRepositoryMapper
@@ -11,11 +15,12 @@ import me.amryousef.converter.domain.CountryRepository
 import me.amryousef.converter.domain.SchedulerProvider
 import org.junit.Test
 
+@Suppress("EXPERIMENTAL_API_USAGE")
 class RemoteCurrencyRepositoryTest {
     private val mockMapper = mock<RemoteCurrencyRepositoryMapper>()
     private val mockApiService = mock<CurrencyRatesService>()
     private val mockCountryRepository = mock<CountryRepository>()
-    private val testScheduler = Schedulers.trampoline()
+    private val testScheduler = TestCoroutineDispatcher()
     private val mockScheduler = mock<SchedulerProvider> {
         on { io() } doReturn testScheduler
         on { main() } doReturn testScheduler
@@ -27,52 +32,86 @@ class RemoteCurrencyRepositoryTest {
         countryRepository = mockCountryRepository
     )
 
-    @Test
-    fun givenServices_WhenObserveCurrencyRates_ThenBothServicesConsumed() {
+    @Test(expected = CancellationException::class)
+    fun givenServices_WhenObserveCurrencyRates_ThenBothServicesConsumed() = runBlockingTest {
         // Given
+        var thrown = false
         given(mockApiService.getLatestRates())
-            .willReturn(Single.just(emptyMap()))
+            .will {
+                if (thrown) {
+                    this.cancel()
+                } else {
+                    thrown = true
+                    return@will emptyMap<String, Any>()
+                }
+            }
         given(mockCountryRepository.getCountryFlagUrl())
-            .willReturn(Single.just(emptyMap()))
+            .willReturn(emptyMap())
 
         // When
-        remoteRepository.observeCurrencyRates().test()
-
-        //Then
-        verify(mockApiService).getLatestRates()
-        verify(mockCountryRepository).getCountryFlagUrl()
+        remoteRepository
+            .observeCurrencyRates()
+            .onCompletion {
+                verify(mockApiService, atLeastOnce()).getLatestRates()
+                verify(mockCountryRepository, atLeastOnce()).getCountryFlagUrl()
+            }
+            .collect()
     }
 
-    @Test
-    fun givenApiServiceReturnsData_WhenObserveCurrencyRates_ThenApiDataIsMapped() {
-        // Given
-        given(mockApiService.getLatestRates())
-            .willReturn(Single.just(emptyMap()))
-        given(mockCountryRepository.getCountryFlagUrl())
-            .willReturn(Single.just(emptyMap()))
+    @Test(expected = CancellationException::class)
+    fun givenApiServiceReturnsData_WhenObserveCurrencyRates_ThenApiDataIsMapped() =
+        runBlockingTest {
+            // Given
+            var thrown = false
+            given(mockApiService.getLatestRates())
+                .will {
+                    if (thrown) {
+                        this.cancel()
+                    } else {
+                        thrown = true
+                        return@will emptyMap<String, Any>()
+                    }
+                }
+            given(mockCountryRepository.getCountryFlagUrl())
+                .willReturn(emptyMap())
 
-        // When
-        remoteRepository.observeCurrencyRates().test()
+            // When
+            remoteRepository
+                .observeCurrencyRates()
+                .onCompletion {
+                    // Then
+                    verify(mockMapper).map(any(), any())
+                }
+                .collect()
+        }
 
-        // Then
-        verify(mockMapper).map(any(), any())
-    }
+    @Test(expected = CancellationException::class)
+    fun givenMapperThrowsError_WhenObserveCurrencyRates_ThenRequestIsRetried() {
+        runBlockingTest {
+            // Given
+            var thrown = false
+            given(mockMapper.map(any(), any()))
+                .will {
+                    if (thrown) {
+                        this.cancel()
+                    } else {
+                        thrown = true
+                        throw JsonSyntaxException("Error")
+                    }
+                }
+            given(mockApiService.getLatestRates())
+                .willReturn(emptyMap())
+            given(mockCountryRepository.getCountryFlagUrl())
+                .willReturn(emptyMap())
 
-    @Test
-    fun givenMapperThrowsError_WhenObserveCurrencyRates_ThenOnErrorIsInvoked() {
-        // Given
-        given(mockMapper.map(any(), any()))
-            .willThrow(JsonSyntaxException("Error"))
-        given(mockApiService.getLatestRates())
-            .willReturn(Single.just(emptyMap()))
-        given(mockCountryRepository.getCountryFlagUrl())
-            .willReturn(Single.just(emptyMap()))
+            // When
+            remoteRepository
+                .observeCurrencyRates()
+                .onCompletion {
+                    verify(mockApiService, times(2)).getLatestRates()
+                }
+                .collect()
 
-        // When
-        val observer = remoteRepository.observeCurrencyRates()
-            .test()
-
-        // Then
-        observer.assertFailure(JsonSyntaxException::class.java)
+        }
     }
 }

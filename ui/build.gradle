@@ -48,5 +48,5 @@ dependencies {
     androidTestImplementation(AndroidTestDeps.espressoCore)
     androidTestImplementation(AndroidTestDeps.androidXtestRules)
     androidTestImplementation(AndroidTestDeps.androidXtestRunner)
-    implementation 'io.mockk:mockk-android:1.9.3.kotlin12'
+    androidTestImplementation(AndroidTestDeps.mockk)
 }

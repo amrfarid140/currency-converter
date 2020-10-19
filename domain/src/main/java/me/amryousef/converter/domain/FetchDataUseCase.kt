@@ -1,21 +1,22 @@
 package me.amryousef.converter.domain
 
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import java.util.*
 import javax.inject.Inject
 
 class FetchDataUseCase @Inject constructor(
     private val currencyRepository: CurrencyRepository,
     private val schedulerProvider: SchedulerProvider
-) : UseCase<Nothing, List<CurrencyData>> {
+) : NoArgUseCase<List<CurrencyData>> {
 
-    private val disposable = CompositeDisposable()
-
-    override fun execute(input: Nothing?, onResult: (UseCaseResult<List<CurrencyData>>) -> Unit) {
-        disposable.add(
-            currencyRepository
-                .observeCurrencyRates()
-                .map { rates ->
+    override fun execute(): Flow<UseCaseResult<List<CurrencyData>>> =
+        currencyRepository
+            .observeCurrencyRates()
+            .map { rates ->
+                UseCaseResult.Success(
                     rates.map { rate ->
                         CurrencyData(
                             currency = Currency.getInstance(rate.currency.currencyCode),
@@ -24,19 +25,9 @@ class FetchDataUseCase @Inject constructor(
                             countryFlagUrl = rate.currency.flagUrl
                         )
                     }
-                }
-                .observeOn(schedulerProvider.main())
-                .subscribe(
-                    { data ->
-                        onResult(UseCaseResult.Success(data))
-                    },
-                    { error ->
-                        onResult(UseCaseResult.Error(error))
-                    }
-                )
-        )
-    }
-
-    override fun cancel() =
-        disposable.clear()
+                ) as UseCaseResult<List<CurrencyData>>
+            }
+            .catch {
+                emit(UseCaseResult.Error(it))
+            }.flowOn(schedulerProvider.io())
 }

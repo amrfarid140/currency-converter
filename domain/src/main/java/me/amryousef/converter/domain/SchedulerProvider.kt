@@ -1,8 +1,8 @@
 package me.amryousef.converter.domain
 
-import io.reactivex.Scheduler
+import kotlinx.coroutines.CoroutineDispatcher
 
 interface SchedulerProvider {
-    fun io(): Scheduler
-    fun main(): Scheduler
+    fun io(): CoroutineDispatcher
+    fun main(): CoroutineDispatcher
 }
